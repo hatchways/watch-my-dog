@@ -1,10 +1,11 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Toolbar, Link} from '@material-ui/core';
+import {AppBar, Toolbar} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import dogPaw from '../../static/images/dog-paw.png'
+import dogPaw from '../../static/images/dog-paw.png';
+import Avatar from '@material-ui/core/Avatar';
 
 
 const useStyles = makeStyles(theme => ({
@@ -42,7 +43,13 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(5),
   },
   link:{
-  }
+    color:"inherit",
+    textDecoration:"none",
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.common.white,
+  },
 }));
 
 export default function ButtonAppBar() {
@@ -52,15 +59,24 @@ export default function ButtonAppBar() {
     <div className={classes.root}>
       <AppBar position="fixed" className={classes.navbar}>
         <Toolbar>
-          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="Menu">
-          </IconButton>
+        <Avatar className={classes.avatar} src={dogPaw} />
           <Typography variant="h5" className={classes.title}>
-            Lovingsitter
+            <Link to='/' className={classes.link}>
+              Lovingsitter
+            </Link>
           </Typography>
-          <Button size="medium" disableRipple="true" disableFocusRipple="true"  className={`${classes.button} + ${classes.sitterButton}`}><u>Become a Sitter</u></Button>
-          <Button size="medium" variant="outlined" className={`${classes.button} + ${classes.login}`}>Login</Button>
+          <Button size="medium" disableRipple="true" disableFocusRipple="true"  className={`${classes.button} + ${classes.sitterButton}`}>
+            <Link to='/Signin' className={classes.link}>
+              <u>Become a Sitter</u>              
+            </Link>            
+          </Button>
+          <Button size="medium" variant="outlined" className={`${classes.button} + ${classes.login}`}>
+            <Link to={'/userlogin'} className={classes.link}>
+             Login
+            </Link>
+          </Button>
           <Button size="medium" className={`${classes.button} + ${classes.signup}`}> 
-            <Link href={'/Signup'} className={classes.link}  color= "inherit" underline="none">
+            <Link to={'/usersignup'} className={classes.link} >
               Sign Up
             </Link>
           </Button>

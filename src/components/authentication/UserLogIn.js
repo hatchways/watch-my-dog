@@ -52,7 +52,7 @@ export default function SignIn() {
       <div className={classes.paper}>
       <Avatar className={classes.avatar} src={dogPaw}/>
         <Typography component="h1" variant="h5">
-          Sitter Sign in
+          Owner Sign in
         </Typography>
         <form className={classes.form} noValidate>
           <TextField
@@ -97,8 +97,8 @@ export default function SignIn() {
               </Link>
             </Grid>
             <Grid item>
-              <Link to="/signup" variant="body2" className={classes.link}>
-                {"Don't have an sitter account? Sign Up"}
+              <Link to="/usersignup" variant="body2" clasName={classes.link}>
+                Don't have an account? Sign Up
               </Link>
             </Grid>
           </Grid>
