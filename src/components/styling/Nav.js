@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Toolbar} from '@material-ui/core';
+import { AppBar, Toolbar, Link} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
@@ -31,10 +31,17 @@ const useStyles = makeStyles(theme => ({
     color: "inherit",
   },
   sitterButton:{
-    textTransform: "smallcaps"
+    textTransform: "lowercase",
+    marginRight: theme.spacing(5),
+  },
+  login:{
+    borderColor: "#e3e3e3",
   },
   signup:{
     backgroundColor: "#f04040",
+    marginRight: theme.spacing(5),
+  },
+  link:{
   }
 }));
 
@@ -52,7 +59,11 @@ export default function ButtonAppBar() {
           </Typography>
           <Button size="medium" disableRipple="true" disableFocusRipple="true"  className={`${classes.button} + ${classes.sitterButton}`}><u>Become a Sitter</u></Button>
           <Button size="medium" variant="outlined" className={`${classes.button} + ${classes.login}`}>Login</Button>
-          <Button size="medium" className={`${classes.button} + ${classes.signup}`}>Sign Up</Button>
+          <Button size="medium" className={`${classes.button} + ${classes.signup}`}> 
+            <Link href={'/Signup'} className={classes.link}  color= "inherit" underline="none">
+              Sign Up
+            </Link>
+          </Button>
         </Toolbar>
       </AppBar>
     </div>
