@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -7,14 +7,13 @@ import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import dogPaw from '../../static/images/dog-paw.png';
 
 
-const useStyles = makeStyles(theme => ({
+const mystyles = theme => ({
   '@global': {
     body: {
       backgroundColor: theme.palette.common.white,
@@ -41,11 +40,16 @@ const useStyles = makeStyles(theme => ({
     color: "#3f51b5",
     textDecoration:"none",
   },
-}));
+});
 
-export default function SignIn() {
-  const classes = useStyles();
+class UserLogIn extends Component{
+  constructor(props) {
+    super(props)
+    
 
+  };
+  render(){
+  const {classes} = this.props;
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -106,4 +110,7 @@ export default function SignIn() {
       </div>
     </Container>
   );
+  }
 }
+
+export default withStyles(mystyles)(UserLogIn);

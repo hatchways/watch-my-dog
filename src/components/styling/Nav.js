@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import {Link} from 'react-router-dom';
-// import { makeStyles } from '@material-ui/core/styles';
 import { withStyles } from '@material-ui/core/styles'
 import {AppBar, Toolbar} from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
@@ -57,44 +56,37 @@ export default withStyles(styles)(class ButtonAppBar extends Component {
   constructor(props){
     super(props);
     this.state = {
-      isAuthenticated : true,
+      isAuthenticated : false,
     }
   }
 
   render(){
     const { classes } = this.props;
+    // creating a conditional JSX to render based on whether the user is logged in or not. 
     const navContent = [];
     if(!this.state.isAuthenticated){
       navContent.push(
       <Fragment>
-        <Button size="medium" variant="outlined" className={`${classes.button} + ${classes.login}`}>
-          <Link to={'/userlogin'} className={classes.link}>
+        <Button component={ Link } to="/userlogin" size="medium" variant="outlined" className={`${classes.button} + ${classes.login}`}>
           Login
-          </Link>
         </Button>
-        <Button size="medium" className={`${classes.button} + ${classes.signup}`}> 
-          <Link to={'/usersignup'} className={classes.link} >
+        <Button component={ Link } to="/usersignup" size="medium" className={`${classes.button} + ${classes.signup}`}> 
             Sign Up
-          </Link>
         </Button>
       </Fragment>)
       }
       else if(this.state.isAuthenticated){
         navContent.push(
         <Fragment>
-          <Button size="medium" variant="outlined" className={`${classes.button} + ${classes.login}`}>
-          <Link to={'/userlogin'} className={classes.link}>
+          <Button component={ Link } to="/userlogin" size="medium" variant="outlined" className={`${classes.button} + ${classes.login}`}>
             Messages
-          </Link>
-        </Button>
-        <Button size="medium" className={`${classes.button} + ${classes.signup}`}> 
-          <Link to={'/usersignup'} className={classes.link} >
-            Profile
-          </Link>
-        </Button>
+          </Button>
+          <Button component={ Link } to="/usersignup" size="medium" className={`${classes.button} + ${classes.signup}`}> 
+              Profile
+          </Button>
       </Fragment>
       )}
-      console.log(this.state.isAuthenticated);
+
   return (
     <div className={classes.root}>
       <AppBar position="fixed" className={classes.navbar}>
@@ -105,10 +97,8 @@ export default withStyles(styles)(class ButtonAppBar extends Component {
               Lovingsitter
             </Link>
           </Typography>
-          <Button size="medium" disableRipple="true" disableFocusRipple="true"  className={`${classes.button} + ${classes.sitterButton}`}>
-            <Link to='/Signin' className={classes.link}>
+          <Button component={ Link } to="/signin" size="medium" disableRipple ={true} disableFocusRipple={true}  className={`${classes.button} + ${classes.sitterButton}`}>
               <u>Become a Sitter</u>              
-            </Link>            
           </Button>
           {navContent}
         </Toolbar>

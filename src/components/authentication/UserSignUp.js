@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -6,13 +6,13 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import dogPaw from '../../static/images/dog-paw.png';
+import { withStyles } from '@material-ui/styles';
 
 
 
-const useStyles = makeStyles(theme => ({
+const styles = theme => ({
   '@global': {
     body: {
       backgroundColor: theme.palette.common.white,
@@ -39,11 +39,17 @@ const useStyles = makeStyles(theme => ({
     color: "#3f51b5",
     textDecoration:"none",
   },
-}));
+});
 
-export default function SignUp() {
-  const classes = useStyles();
+class SignUp extends Component {
 
+  // handlechane
+  onSubmit=(e)=>{
+    e.preventDefault();
+    // console.log(e.currenttarget.value)
+  }
+  render(){
+    const {classes} = this.props;
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -52,17 +58,29 @@ export default function SignUp() {
         <Typography component="h1" variant="h5">
           Owner Sign up
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} noValidate onSubmit={this.onSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 autoComplete="fname"
-                name="Name"
+                name="firstName"
                 variant="outlined"
                 required
                 fullWidth
-                id="Name"
-                label="Name"
+                id="firstName"
+                label="First Name"
+                autoFocus
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="lastName"
+                label="Last Name"
+                name="lastName"
+                autoComplete="lname"
                 autoFocus
               />
             </Grid>
@@ -110,4 +128,7 @@ export default function SignUp() {
       </div>
     </Container>
   );
+  }
 }
+
+export default withStyles(styles)(SignUp);
