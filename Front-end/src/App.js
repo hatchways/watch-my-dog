@@ -74,6 +74,9 @@ export default class App extends Component {
             email: '',
             password: '',
           });
+        // .then(()=>{
+        //   localStorage.setItem()
+        // })
         }
       )
       .catch((error)=>{
