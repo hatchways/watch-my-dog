@@ -1,12 +1,12 @@
-from flask import render_template, redirect, url_for, jsonify
+from flask import render_template, redirect, url_for, jsonify, session, request, abort
 from datetime import datetime
 
 from flask_login import current_user, login_user, logout_user, login_required
 
 from . import main_bp
 from app.main.forms import LoginForm, RegisterForm
-from app.models import User, get_one
-from app.api.auth import token_auth
+from app.models import get_one, Owner, Sitter, get_one_or_404
+from app.errors.handlers import json_response_needed, error_response
 
 # _users = mongo.db.users
 
@@ -14,78 +14,108 @@ from app.api.auth import token_auth
 @main_bp.route('/')
 @main_bp.route('/index/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         print('current user')
-        print(current_user.username)
+        print(current_user.first_name)
     if current_user.is_anonymous:
         print("anonymous")
-    title="Log in to your account"
+
+    title = "log in as a dog sitter"
+    if json_response_needed():
+        # parse request
+        is_sitter = request.args.get('is_sitter')
+        if is_sitter:
+            model = Sitter
+        else:
+            model = Owner
+
+        email = request.args.get('email')
+        u = get_one_or_404(model, 'email', email)
+        if u:
+            if not u.check_password(request.args.get['password']):
+                abort(404)
+            login_user(u, remember=request.args.get('remember'))
+            session['is_sitter'] = True
+            response = jsonify(u.to_dict())
+            response.status_code = 200
+            return response
+
     form = LoginForm()
     if form.validate_on_submit():
-        try:
-            u = User.objects.get({'username':form.username.data})
-        except User.DoesNotExist:
-            u = None
+        is_sitter = form.is_sitter.data
+        if is_sitter:
+            model = Sitter
+        else:
+            model = Owner
+
+        u = get_one(model, 'first_name', form.username.data)
         if u is None or not u.check_password(form.password.data):
             print("invalid credential")
             return redirect(url_for('main.login'))
         else:
             msg = login_user(u, remember=form.remember.data)
-            print(msg)
+            session['is_sitter'] = True
+            print('login', msg)
             return redirect(url_for('main.index'))
     return render_template("login.html", form=form, title=title)
-
-
-# @app.route('/login', methods=['POST','GET'])
-# def login():
-#     if current_user.is_authenticated:
-#         print('current user')
-#         print(current_user.username)
-#     if current_user.is_anonymous:
-#         print("anonymous")
-#     title="Log in to your account"
-#     form = LoginForm()
-#     if form.validate_on_submit():
-#         u = _users.find_one({'username':form.username.data})
-#         if u is None or not User.check_password(u['password_hash'], form.password.data):
-#             print("invalid credential")
-#             return redirect(url_for('login'))
-#         else:
-#             user = User(username=u['username'], id=u['_id'])
-#             msg = login_user(user, remember=form.remember.data)
-#             print(msg)
-#             return redirect(url_for('index'))
-#     return render_template("login.html", form=form, title=title)
 
 
 @main_bp.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('main.index'))
+    session.pop('is_sitter')
+    if not json_response_needed():
+        return redirect(url_for('main.index'))
 
 
 @main_bp.route('/register', methods=["GET", "POST"])
 def register():
     title = "Register an account"
+    if json_response_needed():
+        # parse request
+        is_sitter = request.args.get('is_sitter')
+
+        if is_sitter:
+            model = Sitter
+        else:
+            model = Owner
+
+        email = request.args.get('email')
+        u = get_one_or_404(model, 'email', email)
+        if u:
+            error_response(500, "user exists")
+        else:
+            u = model(
+                first_name=request.args.get('first_name'),
+                last_name=request.args.get('last_name'),
+                email=request.args.get('email'),
+                timestamp=datetime.utcnow()
+            )
+            response = jsonify(u.to_dict())
+            response.status_code = 201
+            return response
+
     form = RegisterForm()
     if form.validate_on_submit():
         print('submit')
-        try:
-            u = User.objects.get({'username':form.username.data})
-        except User.DoesNotExist:
-            u = None
+        is_sitter = form.is_sitter.data
+        if is_sitter:
+            model = Sitter
+        else:
+            model = Owner
+        u = get_one(model, 'first_name', form.first_name.data)
         if u:
             print('user exists')
             return redirect(url_for('main.index'))
         else:
-            u = User(
-                username=form.username.data,
+            u = model(
+                first_name=form.username.data,
                 email=form.email.data,
                 timestamp=datetime.utcnow()
             )
@@ -97,7 +127,7 @@ def register():
     return render_template("register.html", form=form, title=title)
 
 
-# @app.route('/register', methods=["GET", "POST"])
+# flask-pymongo @app.route('/register', methods=["GET", "POST"])
 # def register():
 #     title = "Register an account"
 #     form = RegisterForm()
@@ -122,11 +152,19 @@ def register():
 #         return redirect(url_for('index'))
 #     return render_template("register.html", form=form, title=title)
 
-
-@main_bp.route('/users/<username>')
+@main_bp.route('/user_owner/<username>')
 @login_required
-def user(username):
-    user = get_one(User, 'username', username)
+def user_owner(username):
+    user = get_one(Owner, 'username', username)
     if user:
         return jsonify(user.to_dict())
     return '404'
+
+
+@main_bp.route('/user_sitter/<username>')
+@login_required
+def user_sitter(username):
+    user = get_one(Sitter, 'username', username)
+    if user:
+        return jsonify(user.to_dict())
+    return '400'
