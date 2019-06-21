@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
+import {TextField, Paper} from '@material-ui/core';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
@@ -17,11 +17,12 @@ import dogPaw from '../../static/images/dog-paw.png';
 const useStyles = makeStyles(theme => ({
   '@global': {
     body: {
-      backgroundColor: theme.palette.common.white,
+      backgroundColor: theme.bgcolor,
     },
   },
   paper: {
     marginTop: theme.spacing(15),
+    padding: theme.spacing(5),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -35,7 +36,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(1),
   },
   submit: {
-    margin: theme.spacing(3, 0, 2),
+    margin: theme.spacing(2, 0, 2),
   },
   link:{
     color: "#3f51b5",
@@ -47,9 +48,9 @@ export default function SignIn() {
   const classes = useStyles();
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="sm">
       <CssBaseline />
-      <div className={classes.paper}>
+      <Paper className={classes.paper}>
       <Avatar className={classes.avatar} src={dogPaw}/>
         <Typography component="h1" variant="h5">
           Sitter Sign in
@@ -96,14 +97,14 @@ export default function SignIn() {
                 Forgot password?
               </Link>
             </Grid>
-            <Grid item>
+            <Grid item style={{marginTop:'5%'}}>
               <Link to="/signup" variant="body2" className={classes.link}>
                 {"Don't have an sitter account? Sign Up"}
               </Link>
             </Grid>
           </Grid>
         </form>
-      </div>
+      </Paper>
     </Container>
   );
 }

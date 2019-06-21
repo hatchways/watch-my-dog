@@ -8,6 +8,8 @@ import SignUp from './components/authentication/SignUp';
 import SignIn from './components/authentication/SignIn';
 import UserLogIn from './components/authentication/UserLogIn';
 import UserSignUp from './components/authentication/UserSignUp';
+import Profile from './components/webpages/Profile';
+
 import axios from 'axios';
 
 
@@ -18,6 +20,7 @@ const theme = createMuiTheme({
   primary: "#f04040",
   secondary: "#1f1f1f",
   error: "#d8000c",
+  bgcolor: "#f6f6f6",
 });
 // email and password validation by Regular expression
 const emailRegex = RegExp(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
@@ -115,13 +118,14 @@ export default class App extends Component {
     return (
       <MuiThemeProvider theme={theme}>
         <Router>  
-          <Nav />
+          <Nav upath={window.location.pathname}/>
           <Switch>
             <Route exact path="/" render={()=>{return <Home />}} />
             <Route path="/signup" render={()=>{return <SignUp formErrors={this.state.formErrors} handleChange={this.handleChange} handleSubmit={this.handleSubmit}/>}} />
             <Route path="/signin" render={()=>{return <SignIn />}} />
             <Route path="/userlogin" render={()=>{return <UserLogIn />}} />
             <Route path="/usersignup" render={()=>{return <UserSignUp />}} />
+            <Route path="/profile" render={()=>{return <Profile />}}/>
           </Switch>
         </Router>
       </MuiThemeProvider>

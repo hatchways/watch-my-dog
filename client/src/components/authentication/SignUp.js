@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
+import { TextField, Paper } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
@@ -12,13 +12,14 @@ import dogPaw from '../../static/images/dog-paw.png';
 
 
 const styles = (theme) => ({
-  // '@global': {
-  //   body: {
-  //     backgroundColor: theme.palette.common.white,
-  //   },
-  // },
+  '@global': {
+    body: {
+      backgroundColor: theme.bgcolor,
+    },
+  },
   paper: {
     marginTop: theme.spacing(15),
+    padding: theme.spacing(5),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -60,9 +61,9 @@ class SignUp extends Component{
   render(){
     const {classes, handleChange, formErrors} = this.props;
   return (
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="sm">
         <CssBaseline />
-        <div className={classes.paper}>
+        <Paper className={classes.paper}>
           <Avatar className={classes.avatar} src={dogPaw}/>
           <Typography component="h1" variant="h5">
             Sitter Sign up
@@ -160,7 +161,7 @@ class SignUp extends Component{
               </Grid>
             </Grid>
           </form>
-        </div>
+        </Paper>
       </Container>
     );
 }
