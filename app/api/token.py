@@ -8,7 +8,7 @@ from app.api.auth import basic_auth, token_auth
 def get_token():
     token = g.current_user.get_token()
     g.current_user.save()
-    return jsonify({'token':token})
+    return jsonify({'token': token})
 
 
 @api_bp.route('/tokens/', methods=['DELETE'])
@@ -24,4 +24,4 @@ def revoke_token():
 def api_gen_token():
     token = g.current_user.get_token()
     g.current_user.save()
-    return jsonify({'token':token})
+    return jsonify({'token': token})

@@ -20,6 +20,7 @@
         {{ form.password2.label() }}
         {{ form.password2(size=32) }}
     </p>
+    <p>{{form.is_sitter()}}{{form.is_sitter.label()}}</p>
     <p>{{form.submit()}}</p>
 </form>
 {% endblock %}
