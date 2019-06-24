@@ -13,6 +13,7 @@ import {
   getFromStorage,
   removeFromStorage
 } from "../Utilities/storage";
+import { verify } from "crypto";
 
 // email and password validation by Regular expression
 const emailRegex = RegExp(
@@ -42,9 +43,9 @@ class Homepage extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isLoading: true,
       isAuthenticated: false,
       is_sitter: false,
-      // currentPath: window.location.pathname,
       firstName: null,
       lastName: null,
       email: null,
@@ -59,10 +60,13 @@ class Homepage extends Component {
     };
   }
 
-  componentDidMount() {
+  verify = () => {
     const obj = getFromStorage("dog_sitter");
     if (obj && obj.token) {
       const { token } = obj;
+      this.setState({
+        isLoading: true
+      });
       // Verify token
       axios
         .post("/user_sitter", { token })
@@ -71,17 +75,48 @@ class Homepage extends Component {
           if (json.status == 200) {
             this.setState({
               token,
-              isAuthenticated: true
+              isAuthenticated: true,
+              firstName: "Test1",
+              lastName: "Yeah",
+              email: "test1@test.com",
+              isLoading: false
             });
           }
+        })
+        .catch(error => {
+          console.log("user not found , wrong token");
+          this.setState({
+            isAuthenticated: false,
+            token: null,
+            firstName: null,
+            lastName: null,
+            is_sitter: false,
+            email: null,
+            isLoading: false
+          });
+          removeFromStorage("dog_sitter");
         });
     } else {
-      this.setState({ isAuthenticated: false });
+      this.setState({
+        isAuthenticated: false,
+        token: null,
+        firstName: null,
+        lastName: null,
+        is_sitter: false,
+        email: null,
+        isLoading: false
+      });
     }
-  }
+  };
 
+  componentDidMount() {
+    this.verify();
+  }
   handleSignUp = (e, sitter) => {
     e.preventDefault();
+    this.setState({
+      isLoading: true
+    });
     if (formValid(this.state)) {
       axios
         .post("/register", {
@@ -105,7 +140,8 @@ class Homepage extends Component {
           });
           this.setState({
             token: result.token,
-            isAuthenticated: true
+            isAuthenticated: true,
+            isLoading: false
           });
           if (result.token) {
             // Redirect();
@@ -133,6 +169,9 @@ class Homepage extends Component {
 
   handleSignIn = (e, sitter) => {
     e.preventDefault();
+    this.setState({
+      isLoading: true
+    });
     if (true) {
       axios
         .post("/login", {
@@ -155,7 +194,8 @@ class Homepage extends Component {
           this.setState({
             token: result.token,
             isAuthenticated: true,
-            is_sitter: true
+            is_sitter: true,
+            isLoading: true
           });
           return result;
         })
@@ -172,6 +212,9 @@ class Homepage extends Component {
           alert("Email and/or Password dont match");
         });
     } else {
+      this.setState({
+        isLoading: false
+      });
       alert("Please fullfill the signup Requirement ");
       console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
     }
@@ -179,14 +222,18 @@ class Homepage extends Component {
 
   handleLogOut = e => {
     e.preventDefault();
+    this.setState({
+      isLoading: true
+    });
     const token = getFromStorage("dog_sitter");
     axios
-      .get("/logout")
+      .get("/logout", { token })
       .then(res => {
         this.setState({
           token: "",
           isAuthenticated: false,
-          is_sitter: false
+          is_sitter: false,
+          isLoading: false
         });
         removeFromStorage("dog_sitter");
         return res;
@@ -200,7 +247,8 @@ class Homepage extends Component {
         this.setState({
           token: "",
           isAuthenticated: false,
-          is_sitter: false
+          is_sitter: false,
+          isLoading: false
         });
       });
   };
@@ -296,7 +344,22 @@ class Homepage extends Component {
               );
             }}
           />{" "}
-          <Route path="/profile" component={Profile} />
+          <Route
+            path="/profile"
+            render={props => {
+              return (
+                <Profile
+                  {...props}
+                  verify={this.verify}
+                  isAuthenticated={this.state.isAuthenticated}
+                  first_name={this.state.firstName}
+                  last_name={this.state.lastName}
+                  email={this.state.email}
+                  isLoading={this.state.isLoading}
+                />
+              );
+            }}
+          />
         </Switch>{" "}
       </React.Fragment>
     );

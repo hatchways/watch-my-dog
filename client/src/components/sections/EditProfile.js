@@ -25,6 +25,7 @@ const styles = theme => ({});
 class EditProfile extends Component {
   render() {
     const classes = this.props;
+    console.log(this.props);
     return (
       <div>
         <Grid container alignItems="center" justify="center" spacing={5}>
@@ -43,6 +44,7 @@ class EditProfile extends Component {
             </Grid>
             <Grid item xs={9}>
               <TextField
+                defaultValue={this.props.first_name}
                 id="outlined-name"
                 className={classes.textField}
                 margin="normal"
@@ -59,6 +61,7 @@ class EditProfile extends Component {
             </Grid>
             <Grid item xs={9}>
               <TextField
+                defaultValue={this.props.last_name}
                 id="outlined-name"
                 className={classes.textField}
                 margin="normal"
@@ -182,6 +185,7 @@ class EditProfile extends Component {
             </Grid>
             <Grid item xs={9}>
               <TextField
+                defaultValue={this.props.email}
                 id="outlined-name"
                 className={classes.textField}
                 margin="normal"
