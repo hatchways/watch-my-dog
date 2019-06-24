@@ -161,7 +161,7 @@ class Sitter(UserMixin, MongoModel):
         now = datetime.now()
         if self.token and self.token_expiration > now + timedelta(seconds=3600):
             return self.token
-        self.token = jwt.encode({'token': self.username, 'exp': time() + expires_in},
+        self.token = jwt.encode({'token': self.email, 'exp': time() + expires_in},
                                  current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
         # self.update({"$set": {"token": token }})
@@ -180,10 +180,12 @@ class Sitter(UserMixin, MongoModel):
             'last_name': self.last_name,
             'date_registered': self.timestamp,
             'gender': self.gender,
-            'about_me': self.about_me
+            'about_me': self.about_me,  
         }
         if include_email:
             data['email'] = self.email
+        if self.token:
+            data['token'] = self.token
         return data
 
     def from_dict(self, data, new_user=False):
@@ -239,7 +241,7 @@ class Owner(UserMixin, MongoModel):
         now = datetime.now()
         if self.token and self.token_expiration > now + timedelta(seconds=3600):
             return self.token
-        self.token = jwt.encode({'token': self.username, 'exp': time() + expires_in},
+        self.token = jwt.encode({'token': self.email, 'exp': time() + expires_in},
                                  current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
         # self.update({"$set": {"token": token }})
@@ -262,6 +264,8 @@ class Owner(UserMixin, MongoModel):
         }
         if include_email:
             data['email'] = self.email
+        if self.token:
+            data['token'] = self.token
         return data
 
     def from_dict(self, data, new_user=False):
@@ -286,7 +290,7 @@ class Owner(UserMixin, MongoModel):
 def load_user(u_id):
     print('u_id', ObjectId(u_id))
     if session['is_sitter']:
-        print('seach in sitter')
+        print('search in sitter')
         return get_one(Sitter,'_id', ObjectId(u_id))
     print('search in owner')
     return get_one(Owner,'_id', ObjectId(u_id))

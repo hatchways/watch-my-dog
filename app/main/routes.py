@@ -28,19 +28,19 @@ def login():
     title = "log in as a dog sitter"
     if json_response_needed():
         # parse request
-        is_sitter = request.args.get('is_sitter')
+        is_sitter = request.get_json()['is_sitter']
         if is_sitter:
             model = Sitter
         else:
             model = Owner
 
-        email = request.args.get('email')
-        u = get_one_or_404(model, 'email', email)
+        email = request.get_json()['email']
+        u = get_one(model, 'email', email)
         if u:
-            if not u.check_password(request.args.get['password']):
+            if not u.check_password(request.get_json()['password']):
                 abort(404)
-            login_user(u, remember=request.args.get('remember'))
-            session['is_sitter'] = True
+            login_user(u, remember=request.get_json()['remember'])
+            session['is_sitter'] = True if is_sitter else False
             response = jsonify(u.to_dict())
             response.status_code = 200
             return response
@@ -72,6 +72,7 @@ def logout():
     session.pop('is_sitter')
     if not json_response_needed():
         return redirect(url_for('main.index'))
+    return "", 201
 
 
 @main_bp.route('/register', methods=["GET", "POST"])
@@ -79,24 +80,28 @@ def register():
     title = "Register an account"
     if json_response_needed():
         # parse request
-        is_sitter = request.args.get('is_sitter')
+        is_sitter = request.get_json()['is_sitter']
 
         if is_sitter:
             model = Sitter
         else:
             model = Owner
 
-        email = request.args.get('email')
-        u = get_one_or_404(model, 'email', email)
+        email = request.get_json()['email']
+        print('content',email)
+        u = get_one(model, 'email', email)
         if u:
             error_response(500, "user exists")
         else:
             u = model(
-                first_name=request.args.get('first_name'),
-                last_name=request.args.get('last_name'),
-                email=request.args.get('email'),
+                first_name=request.get_json()['first_name'],
+                last_name=request.get_json()['last_name'],
+                email=request.get_json()['email'],
                 timestamp=datetime.utcnow()
             )
+            u.set_password(request.get_json()['password'])
+            u.get_token(3600*24*10)
+            u.save()
             response = jsonify(u.to_dict())
             response.status_code = 201
             return response
@@ -109,7 +114,7 @@ def register():
             model = Sitter
         else:
             model = Owner
-        u = get_one(model, 'first_name', form.first_name.data)
+        u = get_one(model, 'first_name', form.username.data)
         if u:
             print('user exists')
             return redirect(url_for('main.index'))
@@ -152,19 +157,20 @@ def register():
 #         return redirect(url_for('index'))
 #     return render_template("register.html", form=form, title=title)
 
-@main_bp.route('/user_owner/<username>')
+@main_bp.route('/user_owner/<first_name>')
 @login_required
-def user_owner(username):
-    user = get_one(Owner, 'username', username)
+def user_owner(first_name):
+    user = get_one(Owner, 'first_name', first_name)
     if user:
         return jsonify(user.to_dict())
     return '404'
 
 
-@main_bp.route('/user_sitter/<username>')
-@login_required
-def user_sitter(username):
-    user = get_one(Sitter, 'username', username)
+@main_bp.route('/user_sitter', methods=['GET', 'POST'])
+def user_sitter():
+    token = request.get_json()['token']
+    user = get_one(Sitter, 'token', token)
+    print(user.token)
     if user:
         return jsonify(user.to_dict())
     return '400'
