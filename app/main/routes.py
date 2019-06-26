@@ -24,11 +24,12 @@ def login():
         print(current_user.first_name)
     if current_user.is_anonymous:
         print("anonymous")
-
     title = "log in as a dog sitter"
     if json_response_needed():
         # parse request
         is_sitter = request.get_json()['is_sitter']
+        print('sitter checking in login', is_sitter)
+
         if is_sitter:
             model = Sitter
         else:
@@ -59,7 +60,7 @@ def login():
             return redirect(url_for('main.login'))
         else:
             msg = login_user(u, remember=form.remember.data)
-            session['is_sitter'] = True
+            session['is_sitter'] = True if is_sitter else False
             print('login', msg)
             return redirect(url_for('main.index'))
     return render_template("login.html", form=form, title=title)
@@ -81,7 +82,6 @@ def register():
     if json_response_needed():
         # parse request
         is_sitter = request.get_json()['is_sitter']
-
         if is_sitter:
             model = Sitter
         else:
@@ -157,10 +157,11 @@ def register():
 #         return redirect(url_for('index'))
 #     return render_template("register.html", form=form, title=title)
 
-@main_bp.route('/user_owner/<first_name>')
-@login_required
-def user_owner(first_name):
-    user = get_one(Owner, 'first_name', first_name)
+@main_bp.route('/user_owner', methods=['GET', 'POST'])
+def user_owner():
+    token = request.get_json()['token']
+    user = get_one(Owner, 'token', token)
+    print(user.token)
     if user:
         return jsonify(user.to_dict())
     return '404'

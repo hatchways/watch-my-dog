@@ -43,6 +43,7 @@ const styles = theme => ({
 
 class SignIn extends Component {
   submit = e => {
+    console.log("reached 1st step here");
     e.preventDefault();
     const sitter = true;
     this.props.handleSignIn(e, sitter);

@@ -56,11 +56,17 @@ class Homepage extends Component {
         lastName: "",
         email: "",
         password: ""
+      },
+      profile_data: {
+        age: 27,
+        gender: "male",
+        about:
+          "Esse dolore labore ad et dolor elit et. Nisi pariatur voluptate esse irure ex. Cupidatat nostrud sunt adipisicing nisi pariatur consectetur nostrud do cillum exercitation magna. Voluptate ut voluptate dolor elit irure duis dolor velit qui. Labore nulla incididunt veniam fugiat irure duis ea laboris ea laborum non adipisicing nulla. Mollit ex ullamco ut sit proident nostrud eiusmod Lorem est consequat. Non sint deserunt consectetur voluptate nisi in mollit irure.\r\n"
       }
     };
   }
-
   verify = () => {
+    const url = this.state.is_sitter ? "/user_sitter" : "/user_owner";
     const obj = getFromStorage("dog_sitter");
     if (obj && obj.token) {
       const { token } = obj;
@@ -69,22 +75,25 @@ class Homepage extends Component {
       });
       // Verify token
       axios
-        .post("/user_sitter", { token })
+        .post(url, { token })
         .then(res => res)
         .then(json => {
-          if (json.status == 200) {
+          if (json.status === 200) {
             this.setState({
               token,
               isAuthenticated: true,
-              firstName: "Test1",
-              lastName: "Yeah",
-              email: "test1@test.com",
+              firstName: "Luna",
+              lastName: "Rose",
+              email: "lunarose@brainclip.com",
               isLoading: false
             });
+          } else {
+            throw Error("Unauthorized");
           }
         })
         .catch(error => {
-          console.log("user not found , wrong token");
+          console.log(error.message);
+          // console.log("user not found , wrong token");
           this.setState({
             isAuthenticated: false,
             token: null,
@@ -114,6 +123,7 @@ class Homepage extends Component {
   }
   handleSignUp = (e, sitter) => {
     e.preventDefault();
+    console.log(sitter);
     this.setState({
       isLoading: true
     });
@@ -155,7 +165,6 @@ class Homepage extends Component {
           return result;
         })
         .catch(error => {
-          console.log(error);
           alert("User already Exist");
         });
     } else {
@@ -163,12 +172,14 @@ class Homepage extends Component {
         isAuthenticated: false
       });
       alert("Please fullfill the signup Requirement");
-      console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
+      // console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
     }
   };
 
   handleSignIn = (e, sitter) => {
     e.preventDefault();
+    console.log(sitter);
+    const lStorageName = sitter ? "dog_sitter" : "dog_owner";
     this.setState({
       isLoading: true
     });
@@ -180,7 +191,10 @@ class Homepage extends Component {
           is_sitter: sitter,
           remember: true
         })
-        .then(res => res.data)
+        .then(res => {
+          console.log(res);
+          return res.data;
+        })
         .then(result => {
           this.setState({
             password: ""
@@ -188,14 +202,14 @@ class Homepage extends Component {
           return result;
         })
         .then(result => {
-          setInStorage("dog_sitter", {
+          setInStorage(lStorageName, {
             token: result.token
           });
           this.setState({
             token: result.token,
             isAuthenticated: true,
             is_sitter: true,
-            isLoading: true
+            isLoading: false
           });
           return result;
         })
@@ -206,8 +220,10 @@ class Homepage extends Component {
           return result;
         })
         .catch(error => {
+          // console.log(error);
           this.setState({
-            isAuthenticated: false
+            isAuthenticated: false,
+            isLoading: false
           });
           alert("Email and/or Password dont match");
         });
@@ -216,7 +232,7 @@ class Homepage extends Component {
         isLoading: false
       });
       alert("Please fullfill the signup Requirement ");
-      console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
+      // console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
     }
   };
 
@@ -226,6 +242,7 @@ class Homepage extends Component {
       isLoading: true
     });
     const token = getFromStorage("dog_sitter");
+    removeFromStorage("dog_sitter");
     axios
       .get("/logout", { token })
       .then(res => {
@@ -235,7 +252,6 @@ class Homepage extends Component {
           is_sitter: false,
           isLoading: false
         });
-        removeFromStorage("dog_sitter");
         return res;
       })
       .then(res => {
@@ -276,7 +292,7 @@ class Homepage extends Component {
       [name]: value
     });
   };
-
+  // getProfile = () => {};
   render() {
     return (
       <React.Fragment>

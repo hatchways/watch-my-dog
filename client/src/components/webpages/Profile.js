@@ -9,8 +9,11 @@ import {
   ListItemText,
   CircularProgress
 } from "@material-ui/core";
-import Payments from "../sections/Payments";
 import EditProfile from "../sections/EditProfile";
+import Payments from "../sections/Payments";
+import Security from "../sections/Security";
+import Settings from "../sections/Settings";
+import ProfilePhoto from "../sections/ProfilePhoto";
 
 const cstyle = theme => ({
   "@global": {
@@ -19,10 +22,10 @@ const cstyle = theme => ({
     }
   },
   profileWrapper: {
-    margin: theme.spacing(15, 30, 0, 20)
+    margin: theme.spacing(15, 5)
   },
   paper: {
-    padding: theme.spacing(10)
+    padding: theme.spacing(10, 5)
   },
   link: {
     textDecoration: "none",
@@ -57,31 +60,44 @@ class Profile extends Component {
     } else if (isAuthenticated) {
       return (
         <div className={classes.profileWrapper}>
-          <Grid container spacing={5}>
-            <Grid item className={classes.profileTabs} xs={12} sm={2}>
+          <Grid container spacing={10}>
+            <Grid
+              item
+              className={classes.profileTabs}
+              xs={12}
+              sm={12}
+              md={3}
+              lg={2}
+            >
               <List component="nav" aria-label="">
-                <ListItem button>
-                  <Link to="/profile" className={classes.link}>
+                <Link to="/profile" className={classes.link}>
+                  <ListItem button>
                     <ListItemText primary="Edit Profile" />
-                  </Link>
-                </ListItem>
-                <ListItem button>
-                  <ListItemText primary="Profile Photo" />
-                </ListItem>
-                <ListItem button>
-                  <Link to="/profile/payments" className={classes.link}>
+                  </ListItem>
+                </Link>
+                <Link to="/profile/photo" className={classes.link}>
+                  <ListItem button>
+                    <ListItemText primary="Profile Photo" />
+                  </ListItem>
+                </Link>
+                <Link to="/profile/payments" className={classes.link}>
+                  <ListItem button>
                     <ListItemText primary="Payments" />
-                  </Link>
-                </ListItem>
-                <ListItem button>
-                  <ListItemText primary="Security" />
-                </ListItem>
-                <ListItem button>
-                  <ListItemText primary="Settings" />
-                </ListItem>
+                  </ListItem>
+                </Link>
+                <Link to="/profile/security" className={classes.link}>
+                  <ListItem button>
+                    <ListItemText primary="Security" />
+                  </ListItem>
+                </Link>
+                <Link to="/profile/settings" className={classes.link}>
+                  <ListItem button>
+                    <ListItemText primary="Settings" />
+                  </ListItem>
+                </Link>
               </List>
             </Grid>
-            <Grid item xs={12} sm={10}>
+            <Grid item xs={12} sm={12} md={9} lg={10}>
               <Paper className={classes.paper}>
                 <Switch>
                   <Route
@@ -103,6 +119,24 @@ class Profile extends Component {
                     path={`/profile/payments`}
                     render={() => {
                       return <Payments match={match.path} />;
+                    }}
+                  />
+                  <Route
+                    path={`/profile/photo`}
+                    render={() => {
+                      return <ProfilePhoto match={match.path} />;
+                    }}
+                  />
+                  <Route
+                    path={`/profile/security`}
+                    render={() => {
+                      return <Security match={match.path} />;
+                    }}
+                  />
+                  <Route
+                    path={`/profile/settings`}
+                    render={() => {
+                      return <Settings match={match.path} />;
                     }}
                   />
                 </Switch>

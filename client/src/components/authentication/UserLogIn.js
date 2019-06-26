@@ -48,6 +48,7 @@ class UserLogIn extends Component {
     const sitter = false;
     this.props.handleSignIn(e, sitter);
   };
+
   render() {
     const { classes } = this.props;
     return (
@@ -58,7 +59,7 @@ class UserLogIn extends Component {
           <Typography component="h1" variant="h5">
             Owner Sign in
           </Typography>
-          <form className={classes.form} noValidate>
+          <form className={classes.form} noValidate onSubmit={this.submit}>
             <TextField
               variant="outlined"
               margin="normal"

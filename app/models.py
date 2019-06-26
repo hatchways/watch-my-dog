@@ -289,6 +289,7 @@ class Owner(UserMixin, MongoModel):
 @login.user_loader
 def load_user(u_id):
     print('u_id', ObjectId(u_id))
+    print(session)
     if session['is_sitter']:
         print('search in sitter')
         return get_one(Sitter,'_id', ObjectId(u_id))

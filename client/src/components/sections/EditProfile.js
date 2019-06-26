@@ -3,6 +3,11 @@ import React, { Component } from "react";
 import { Grid, TextField, MenuItem } from "@material-ui/core";
 import { withStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
+import {
+  DateRangePicker,
+  SingleDatePicker,
+  DayPickerRangeController
+} from "react-dates";
 
 const gender = [
   {
@@ -23,9 +28,15 @@ const months = Array.from(Array(13).keys(1));
 
 const styles = theme => ({});
 class EditProfile extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      date: null,
+      focused: false
+    };
+  }
   render() {
     const classes = this.props;
-    console.log(this.props);
     return (
       <div>
         <Grid container alignItems="center" justify="center" spacing={5}>
@@ -106,7 +117,7 @@ class EditProfile extends Component {
               </Typography>
             </Grid>
             <Grid container item xs={9} spacing={1}>
-              <Grid item xs={4}>
+              {/* <Grid item xs={4}>
                 <TextField
                   id="outlined-select-gender"
                   select
@@ -175,6 +186,15 @@ class EditProfile extends Component {
                   ))}
                 </TextField>
               </Grid>
+             */}
+              <SingleDatePicker
+                date={this.state.date} // momentPropTypes.momentObj or null
+                onDateChange={date => this.setState({ date })} // PropTypes.func.isRequired
+                focused={this.state.focused} // PropTypes.bool
+                onFocusChange={({ focused }) => this.setState({ focused })} // PropTypes.func.isRequired
+                id="your_unique_id" // PropTypes.string.isRequired,
+                isOutsideRange={false}
+              />
             </Grid>
           </Grid>
           <Grid container item xs={12} alignItems="center" spacing={4}>

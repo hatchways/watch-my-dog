@@ -37,6 +37,10 @@ const styles = theme => ({
   link: {
     color: "#3f51b5",
     textDecoration: "none"
+  },
+  error: {
+    borderColor: theme.error + " !important",
+    color: theme.error
   }
 });
 
@@ -49,7 +53,7 @@ class SignUp extends Component {
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, handleChange, formErrors, token } = this.props;
     return (
       <Container component="main" maxWidth="sm">
         <CssBaseline />
@@ -70,7 +74,17 @@ class SignUp extends Component {
                   id="firstName"
                   label="First Name"
                   autoFocus
+                  onChange={handleChange}
+                  InputProps={{
+                    classes: {
+                      notchedOutline:
+                        formErrors.firstName.length > 0 ? classes.error : ""
+                    }
+                  }}
                 />
+                {formErrors.firstName.length > 0 && (
+                  <span className={classes.error}>{formErrors.firstName}</span>
+                )}
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -82,7 +96,17 @@ class SignUp extends Component {
                   name="lastName"
                   autoComplete="lname"
                   autoFocus
+                  onChange={handleChange}
+                  InputProps={{
+                    classes: {
+                      notchedOutline:
+                        formErrors.lastName.length > 0 ? classes.error : ""
+                    }
+                  }}
                 />
+                {formErrors.lastName.length > 0 && (
+                  <span className={classes.error}>{formErrors.lastName}</span>
+                )}
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -93,7 +117,17 @@ class SignUp extends Component {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  onChange={handleChange}
+                  InputProps={{
+                    classes: {
+                      notchedOutline:
+                        formErrors.email.length > 0 ? classes.error : ""
+                    }
+                  }}
                 />
+                {formErrors.email.length > 0 && (
+                  <span className={classes.error}>{formErrors.email}</span>
+                )}
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -105,7 +139,17 @@ class SignUp extends Component {
                   type="password"
                   id="password"
                   autoComplete="current-password"
+                  onChange={handleChange}
+                  InputProps={{
+                    classes: {
+                      notchedOutline:
+                        formErrors.password.length > 0 ? classes.error : ""
+                    }
+                  }}
                 />
+                {formErrors.password.length > 0 && (
+                  <span className={classes.error}>{formErrors.password}</span>
+                )}
               </Grid>
             </Grid>
             <Button

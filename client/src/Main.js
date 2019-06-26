@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import App from "./App";
 import "./App.css";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core";
+import "react-dates/initialize";
+import "react-dates/lib/css/_datepicker.css";
 
 const theme = createMuiTheme({
   typography: {

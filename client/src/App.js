@@ -10,7 +10,7 @@ export default class App extends Component {
           <Route
             path="/"
             render={props => {
-              return <Homepage upath={props.history} />;
+              return <Homepage {...props} upath={props.history} />;
             }}
           />
         </Switch>

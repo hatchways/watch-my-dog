@@ -6,11 +6,11 @@ const useStyles = makeStyles({
     textAlign: "center"
   }
 });
-export default function Payments() {
+export default function ProfilePhoto() {
   const classes = useStyles();
   return (
     <div>
-      <h1 className={classes.root}>Payments</h1>
+      <h1 className={classes.root}>ProfilePhoto</h1>
     </div>
   );
 }
