@@ -55,9 +55,6 @@ const styles = theme => ({
 
 export default withStyles(styles)(
   class Nav extends Component {
-    constructor(props) {
-      super(props);
-    }
     logout = e => {
       e.preventDefault();
       this.props.handleLogOut(e);

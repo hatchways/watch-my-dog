@@ -44,7 +44,7 @@ class Homepage extends Component {
     this.state = {
       isLoading: true,
       isAuthenticated: false,
-      is_sitter: true,
+      is_sitter: false,
       firstName: null,
       lastName: null,
       email: null,
@@ -92,8 +92,10 @@ class Homepage extends Component {
     });
   };
   verify = () => {
-    const url = this.state.is_sitter ? "/user_sitter" : "/user_owner";
-    const token_type = this.state.is_sitter ? "dog_sitter" : "dog_owner";
+    const token_type = getFromStorage("dog_sitter")
+      ? "dog_sitter"
+      : "dog_owner";
+    const url = getFromStorage("dog_sitter") ? "/user_sitter" : "/user_owner";
     const obj = getFromStorage(token_type);
     if (obj && obj.token) {
       const { token } = obj;
@@ -148,11 +150,11 @@ class Homepage extends Component {
   componentDidMount() {
     this.verify();
   }
-  submitProfile = () => {
-    console.log(this.state.profile_data);
-  };
+  submitProfile = () => {};
+
   handleSignUp = (e, sitter) => {
     e.preventDefault();
+    const lStorageName = sitter ? "dog_sitter" : "dog_owner";
     this.setState({
       isLoading: true
     });
@@ -174,7 +176,7 @@ class Homepage extends Component {
           return result;
         })
         .then(result => {
-          setInStorage("dog_sitter", {
+          setInStorage(lStorageName, {
             token: result.token
           });
           this.setState({
@@ -200,7 +202,7 @@ class Homepage extends Component {
     } else {
       this.setState({
         isAuthenticated: false,
-        is_sitter: false
+        is_sitter: !sitter
       });
       alert("Please fullfill the signup Requirement");
       // console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
@@ -209,71 +211,63 @@ class Homepage extends Component {
 
   handleSignIn = (e, sitter) => {
     e.preventDefault();
-    console.log(sitter);
     const lStorageName = sitter ? "dog_sitter" : "dog_owner";
     this.setState({
       isLoading: true
     });
-    if (true) {
-      axios
-        .post("/login", {
-          email: this.state.email,
-          password: this.state.password,
-          is_sitter: sitter,
-          remember: true
-        })
-        .then(res => {
-          console.log(res);
-          return res.data;
-        })
-        .then(result => {
-          this.setState({
-            password: ""
-          });
-          return result;
-        })
-        .then(result => {
-          setInStorage(lStorageName, {
-            token: result.token
-          });
-          this.setState({
-            token: result.token,
-            isAuthenticated: true,
-            is_sitter: true,
-            isLoading: false
-          });
-          return result;
-        })
-        .then(result => {
-          if (this.state.isAuthenticated) {
-            this.props.history.push("/");
-          }
-          return result;
-        })
-        .catch(error => {
-          // console.log(error);
-          this.setState({
-            isAuthenticated: false,
-            isLoading: false
-          });
-          alert("Email and/or Password dont match");
+    axios
+      .post("/login", {
+        email: this.state.email,
+        password: this.state.password,
+        is_sitter: sitter,
+        remember: true
+      })
+      .then(res => {
+        console.log(res);
+        return res.data;
+      })
+      .then(result => {
+        this.setState({
+          password: null
         });
-    } else {
-      this.setState({
-        isLoading: false
+        return result;
+      })
+      .then(result => {
+        setInStorage(lStorageName, {
+          token: result.token
+        });
+        this.setState({
+          token: result.token,
+          isAuthenticated: true,
+          is_sitter: sitter,
+          isLoading: false
+        });
+        return result;
+      })
+      .then(result => {
+        if (this.state.isAuthenticated) {
+          this.props.history.push("/");
+        }
+        return result;
+      })
+      .catch(error => {
+        // console.log(error);
+        this.setState({
+          isAuthenticated: false,
+          isLoading: false
+        });
+        alert("Email and/or Password dont match");
       });
-      alert("Please fullfill the signup Requirement ");
-      // console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
-    }
   };
 
   handleLogOut = e => {
+    const sitter = getFromStorage("dog_sitter") ? true : false;
     e.preventDefault();
     this.setState({
       isLoading: true
     });
-    const token = getFromStorage("dog_sitter");
-    removeFromStorage("dog_sitter");
+    const lStorageName = sitter ? "dog_sitter" : "dog_owner";
+    const token = getFromStorage(lStorageName);
     axios
       .get("/logout", { token })
       .then(res => {
@@ -298,6 +292,7 @@ class Homepage extends Component {
           isLoading: false
         });
       });
+    removeFromStorage(lStorageName);
   };
   handleChange = e => {
     e.preventDefault();
@@ -340,7 +335,7 @@ class Homepage extends Component {
               return (
                 <SignUp
                   {...props}
-                  token={this.state.token}
+                  isAuthenticated={this.state.isAuthenticated}
                   formErrors={this.state.formErrors}
                   handleChange={this.handleChange}
                   handleSignUp={this.handleSignUp}
@@ -354,7 +349,7 @@ class Homepage extends Component {
               return (
                 <SignIn
                   {...props}
-                  token={this.state.token}
+                  isAuthenticated={this.state.isAuthenticated}
                   formErrors={this.state.formErrors}
                   handleChange={this.handleChange}
                   handleSignIn={this.handleSignIn}
@@ -368,7 +363,7 @@ class Homepage extends Component {
               return (
                 <UserLogIn
                   {...props}
-                  token={this.state.token}
+                  isAuthenticated={this.state.isAuthenticated}
                   formErrors={this.state.formErrors}
                   handleChange={this.handleChange}
                   handleSignIn={this.handleSignIn}
@@ -382,7 +377,7 @@ class Homepage extends Component {
               return (
                 <UserSignUp
                   {...props}
-                  token={this.state.token}
+                  isAuthenticated={this.state.isAuthenticated}
                   formErrors={this.state.formErrors}
                   handleChange={this.handleChange}
                   handleSignUp={this.handleSignUp}

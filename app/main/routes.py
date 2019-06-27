@@ -28,14 +28,13 @@ def login():
     if json_response_needed():
         # parse request
         is_sitter = request.get_json()['is_sitter']
-        print('sitter checking in login', is_sitter)
-
         if is_sitter:
             model = Sitter
         else:
             model = Owner
-
+        
         email = request.get_json()['email']
+        print(email)
         u = get_one(model, 'email', email)
         if u:
             if not u.check_password(request.get_json()['password']):
@@ -46,24 +45,24 @@ def login():
             response.status_code = 200
             return response
 
-    form = LoginForm()
-    if form.validate_on_submit():
-        is_sitter = form.is_sitter.data
-        if is_sitter:
-            model = Sitter
-        else:
-            model = Owner
+    # form = LoginForm()
+    # if form.validate_on_submit():
+    #     is_sitter = form.is_sitter.data
+    #     if is_sitter:
+    #         model = Sitter
+    #     else:
+    #         model = Owner
 
-        u = get_one(model, 'first_name', form.username.data)
-        if u is None or not u.check_password(form.password.data):
-            print("invalid credential")
-            return redirect(url_for('main.login'))
-        else:
-            msg = login_user(u, remember=form.remember.data)
-            session['is_sitter'] = True if is_sitter else False
-            print('login', msg)
-            return redirect(url_for('main.index'))
-    return render_template("login.html", form=form, title=title)
+    #     u = get_one(model, 'first_name', form.username.data)
+    #     if u is None or not u.check_password(form.password.data):
+    #         print("invalid credential")
+    #         return redirect(url_for('main.login'))
+    #     else:
+    #         msg = login_user(u, remember=form.remember.data)
+    #         session['is_sitter'] = True if is_sitter else False
+    #         print('login', msg)
+    #         return redirect(url_for('main.index'))
+    # return render_template("login.html", form=form, title=title)
 
 
 @main_bp.route("/logout")

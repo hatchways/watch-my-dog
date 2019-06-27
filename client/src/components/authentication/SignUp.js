@@ -59,8 +59,8 @@ class SignUp extends Component {
   };
 
   render() {
-    const { classes, handleChange, formErrors, token } = this.props;
-    if (!token) {
+    const { classes, handleChange, formErrors, isAuthenticated } = this.props;
+    if (!isAuthenticated) {
       return (
         <Container component="main" maxWidth="sm">
           <CssBaseline />

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -50,65 +50,81 @@ class UserLogIn extends Component {
   };
 
   render() {
-    const { classes } = this.props;
-    return (
-      <Container component="main" maxWidth="sm">
-        <CssBaseline />
-        <Paper className={classes.paper}>
-          <Avatar className={classes.avatar} src={dogPaw} />
-          <Typography component="h1" variant="h5">
-            Owner Sign in
-          </Typography>
-          <form className={classes.form} noValidate onSubmit={this.submit}>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                Forgot password?
+    const { classes, handleChange, formErrors, isAuthenticated } = this.props;
+    if (!isAuthenticated) {
+      return (
+        <Container component="main" maxWidth="sm">
+          <CssBaseline />
+          <Paper className={classes.paper}>
+            <Avatar className={classes.avatar} src={dogPaw} />
+            <Typography component="h1" variant="h5">
+              Owner Sign in
+            </Typography>
+            <form className={classes.form} noValidate onSubmit={this.submit}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                autoFocus
+                onChange={handleChange}
+                InputProps={{
+                  classes: {
+                    notchedOutline:
+                      formErrors.email.length > 0 ? classes.error : ""
+                  }
+                }}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                onChange={handleChange}
+              />
+              <FormControlLabel
+                control={<Checkbox value="remember" color="primary" />}
+                label="Remember me"
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+              >
+                Sign In
+              </Button>
+              <Grid container>
+                <Grid item xs>
+                  Forgot password?
+                </Grid>
+                <Grid item>
+                  <Link
+                    to="/usersignup"
+                    variant="body2"
+                    className={classes.link}
+                  >
+                    Don't have an account? Sign Up
+                  </Link>
+                </Grid>
               </Grid>
-              <Grid item>
-                <Link to="/usersignup" variant="body2" className={classes.link}>
-                  Don't have an account? Sign Up
-                </Link>
-              </Grid>
-            </Grid>
-          </form>
-        </Paper>
-      </Container>
-    );
+            </form>
+          </Paper>
+        </Container>
+      );
+    } else {
+      return <Redirect to="/" />;
+    }
   }
 }
 
