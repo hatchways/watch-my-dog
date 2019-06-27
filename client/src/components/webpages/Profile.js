@@ -41,7 +41,17 @@ class Profile extends Component {
     this.props.verify();
   }
   render() {
-    const { classes, match, isAuthenticated, isLoading } = this.props;
+    const {
+      classes,
+      match,
+      isAuthenticated,
+      isLoading,
+      handleDateChange,
+      handleGenderChange,
+      handleTextChange,
+      submitProfile,
+      profile_data
+    } = this.props;
     if (isLoading) {
       return (
         <Grid
@@ -111,6 +121,11 @@ class Profile extends Component {
                           last_name={this.props.last_name}
                           email={this.props.email}
                           isLoading={this.props.isLoading}
+                          handleGenderChange={handleGenderChange}
+                          handleDateChange={handleDateChange}
+                          handleTextChange={handleTextChange}
+                          submitProfile={submitProfile}
+                          profile_data={profile_data}
                         />
                       );
                     }}

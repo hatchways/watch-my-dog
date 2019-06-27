@@ -1,15 +1,11 @@
+import "date-fns";
 import React, { Component } from "react";
-// import { Grid } from '@material-ui/core';
-import { Grid, TextField, MenuItem } from "@material-ui/core";
+import { Grid, TextField, MenuItem, Button } from "@material-ui/core";
 import { withStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import {
-  DateRangePicker,
-  SingleDatePicker,
-  DayPickerRangeController
-} from "react-dates";
-
-const gender = [
+import DateFnsUtils from "@date-io/date-fns";
+import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
+const genderselect = [
   {
     value: "Male",
     label: "Male"
@@ -24,19 +20,34 @@ const gender = [
   }
 ];
 
-const months = Array.from(Array(13).keys(1));
-
-const styles = theme => ({});
-class EditProfile extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      date: null,
-      focused: false
-    };
+const styles = theme => ({
+  about: {
+    lineHeight: "2rem",
+    textAlign: "justify"
+  },
+  save_button: {
+    backgroundColor: theme.primary,
+    color: "white",
+    padding: theme.spacing(2, 4),
+    marginTop: theme.spacing(5)
   }
+});
+
+class EditProfile extends Component {
+  handleDateChange = date => {
+    this.props.handleDateChange(date);
+  };
+  handleGenderChange = e => {
+    this.props.handleGenderChange(e);
+  };
+  handleTextChange = e => {
+    this.props.handleTextChange(e);
+  };
+  submitProfile = e => {
+    this.props.submitProfile(e);
+  };
   render() {
-    const classes = this.props;
+    const { classes, profile_data } = this.props;
     return (
       <div>
         <Grid container alignItems="center" justify="center" spacing={5}>
@@ -61,6 +72,9 @@ class EditProfile extends Component {
                 margin="normal"
                 variant="outlined"
                 fullWidth
+                InputProps={{
+                  readOnly: true
+                }}
               />
             </Grid>
           </Grid>
@@ -78,6 +92,9 @@ class EditProfile extends Component {
                 margin="normal"
                 variant="outlined"
                 fullWidth
+                InputProps={{
+                  readOnly: true
+                }}
               />
             </Grid>
           </Grid>
@@ -91,9 +108,10 @@ class EditProfile extends Component {
               <TextField
                 id="outlined-select-gender"
                 select
+                name="gender"
                 className={classes.textField}
-                value="Male"
-                // onChange={handleChange('currency')}
+                value={profile_data.gender}
+                onChange={this.handleGenderChange}
                 SelectProps={{
                   MenuProps: {
                     className: classes.menu
@@ -102,7 +120,7 @@ class EditProfile extends Component {
                 margin="normal"
                 variant="outlined"
               >
-                {gender.map(option => (
+                {genderselect.map(option => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -117,84 +135,18 @@ class EditProfile extends Component {
               </Typography>
             </Grid>
             <Grid container item xs={9} spacing={1}>
-              {/* <Grid item xs={4}>
-                <TextField
-                  id="outlined-select-gender"
-                  select
-                  className={classes.textField}
-                  value="1"
-                  // onChange={handleChange('currency')}
-                  SelectProps={{
-                    MenuProps: {
-                      className: classes.menu
-                    }
-                  }}
-                  margin="normal"
-                  variant="outlined"
-                  fullWidth
-                >
-                  {months.map(option => (
-                    <MenuItem key={`${option} 124`} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={2}>
-                <TextField
-                  id="outlined-select-gender"
-                  select
-                  className={classes.textField}
-                  value="1"
-                  // onChange={handleChange('currency')}
-                  SelectProps={{
-                    MenuProps: {
-                      className: classes.menu
-                    }
-                  }}
-                  margin="normal"
-                  fullWidth
-                  variant="outlined"
-                >
-                  {months.map(e => (
-                    <MenuItem key={`${e} 155`} value={e}>
-                      {e}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={2}>
-                <TextField
-                  id="outlined-select-gender"
-                  select
-                  className={classes.textField}
-                  value="1"
-                  // onChange={handleChange('currency')}
-                  SelectProps={{
-                    MenuProps: {
-                      className: classes.menu
-                    }
-                  }}
-                  margin="normal"
-                  variant="outlined"
-                  fullWidth
-                >
-                  {months.map(e => (
-                    <MenuItem key={e} value={e}>
-                      {e}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-             */}
-              <SingleDatePicker
-                date={this.state.date} // momentPropTypes.momentObj or null
-                onDateChange={date => this.setState({ date })} // PropTypes.func.isRequired
-                focused={this.state.focused} // PropTypes.bool
-                onFocusChange={({ focused }) => this.setState({ focused })} // PropTypes.func.isRequired
-                id="your_unique_id" // PropTypes.string.isRequired,
-                isOutsideRange={false}
-              />
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <DatePicker
+                  disableFuture
+                  openTo="year"
+                  name="birthdate"
+                  inputVariant="outlined"
+                  format="dd/MM/yyyy"
+                  views={["year", "month", "date"]}
+                  value={profile_data.birthdate}
+                  onChange={this.handleDateChange}
+                />
+              </MuiPickersUtilsProvider>
             </Grid>
           </Grid>
           <Grid container item xs={12} alignItems="center" spacing={4}>
@@ -210,6 +162,9 @@ class EditProfile extends Component {
                 className={classes.textField}
                 margin="normal"
                 variant="outlined"
+                InputProps={{
+                  readOnly: true
+                }}
                 fullWidth
               />
             </Grid>
@@ -224,9 +179,12 @@ class EditProfile extends Component {
               <TextField
                 id="outlined-name"
                 className={classes.textField}
+                value={profile_data.location}
+                name="location"
                 margin="normal"
                 variant="outlined"
                 fullWidth
+                onChange={this.handleTextChange}
               />
             </Grid>
           </Grid>
@@ -238,29 +196,57 @@ class EditProfile extends Component {
             </Grid>
             <Grid item xs={9}>
               <TextField
-                id="outlined-name"
-                className={classes.textField}
-                margin="normal"
-                variant="outlined"
+                className={classes.textfield}
+                defaultValue={profile_data.about}
+                id="multiline-static"
                 fullWidth
+                InputProps={{
+                  classes: {
+                    input: classes.about
+                  }
+                }}
+                InputLabelProps={{
+                  shrink: true
+                }}
+                multiline
+                margin="normal"
+                name="about"
+                onChange={this.handleTextChange}
+                variant="outlined"
               />
             </Grid>
           </Grid>
           <Grid container item xs={12} alignItems="center" spacing={4}>
             <Grid item xs={3}>
               <Typography component="h6" variant="button" align="right">
-                <strong>Sitter Sign up</strong>
+                <strong>Hire At</strong>
               </Typography>
             </Grid>
-            <Grid item xs={9}>
+            <Grid item xs={3}>
               <TextField
                 id="outlined-name"
                 className={classes.textField}
+                defaultValue={profile_data.rate}
                 margin="normal"
+                name="rate"
+                onChange={this.handleTextChange}
                 variant="outlined"
-                fullWidth
               />
             </Grid>
+            <Typography component="h6" variant="h6" xs={3}>
+              $
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid container alignItems="center" justify="center" spacing={5}>
+          <Grid item>
+            <Button
+              variant="contained"
+              onClick={this.submitProfile}
+              className={classes.save_button}
+            >
+              Save
+            </Button>
           </Grid>
         </Grid>
       </div>

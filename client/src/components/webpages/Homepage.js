@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Grids from "../styling/Grids";
 import Nav from "../styling/Nav";
-import { Route, Switch, withRouter, Redirect } from "react-router-dom";
+import { Route, Switch, withRouter } from "react-router-dom";
 import SignUp from "../authentication/SignUp";
 import SignIn from "../authentication/SignIn";
 import UserSignUp from "../authentication/UserSignUp";
@@ -13,7 +13,6 @@ import {
   getFromStorage,
   removeFromStorage
 } from "../Utilities/storage";
-import { verify } from "crypto";
 
 // email and password validation by Regular expression
 const emailRegex = RegExp(
@@ -45,7 +44,7 @@ class Homepage extends Component {
     this.state = {
       isLoading: true,
       isAuthenticated: false,
-      is_sitter: false,
+      is_sitter: true,
       firstName: null,
       lastName: null,
       email: null,
@@ -58,16 +57,44 @@ class Homepage extends Component {
         password: ""
       },
       profile_data: {
-        age: 27,
-        gender: "male",
+        birthdate: new Date("2014-08-18T21:11:54"),
+        gender: "Male",
         about:
-          "Esse dolore labore ad et dolor elit et. Nisi pariatur voluptate esse irure ex. Cupidatat nostrud sunt adipisicing nisi pariatur consectetur nostrud do cillum exercitation magna. Voluptate ut voluptate dolor elit irure duis dolor velit qui. Labore nulla incididunt veniam fugiat irure duis ea laboris ea laborum non adipisicing nulla. Mollit ex ullamco ut sit proident nostrud eiusmod Lorem est consequat. Non sint deserunt consectetur voluptate nisi in mollit irure.\r\n"
+          "Do play they miss give so up. Words to up style of since world. We leaf to snug on no need. Way own uncommonly travelling now acceptance bed compliment solicitude. Dissimilar admiration so terminated no in contrasted it. Advantages entreaties mr he apartments do. Limits far yet turned highly repair parish talked six. Draw fond rank form nor the day eat.\r\n",
+        location: "Toronto",
+        rate: "15"
       }
     };
   }
+
+  handleDateChange = date => {
+    this.setState({
+      profile_data: {
+        ...this.state.profile_data,
+        birthdate: date
+      }
+    });
+  };
+  handleGenderChange = e => {
+    this.setState({
+      profile_data: {
+        ...this.state.profile_data,
+        gender: e.target.value
+      }
+    });
+  };
+  handleTextChange = e => {
+    this.setState({
+      profile_data: {
+        ...this.state.profile_data,
+        [e.target.name]: [e.target.value]
+      }
+    });
+  };
   verify = () => {
     const url = this.state.is_sitter ? "/user_sitter" : "/user_owner";
-    const obj = getFromStorage("dog_sitter");
+    const token_type = this.state.is_sitter ? "dog_sitter" : "dog_owner";
+    const obj = getFromStorage(token_type);
     if (obj && obj.token) {
       const { token } = obj;
       this.setState({
@@ -103,7 +130,7 @@ class Homepage extends Component {
             email: null,
             isLoading: false
           });
-          removeFromStorage("dog_sitter");
+          removeFromStorage(token_type);
         });
     } else {
       this.setState({
@@ -121,9 +148,11 @@ class Homepage extends Component {
   componentDidMount() {
     this.verify();
   }
+  submitProfile = () => {
+    console.log(this.state.profile_data);
+  };
   handleSignUp = (e, sitter) => {
     e.preventDefault();
-    console.log(sitter);
     this.setState({
       isLoading: true
     });
@@ -151,6 +180,7 @@ class Homepage extends Component {
           this.setState({
             token: result.token,
             isAuthenticated: true,
+            is_sitter: sitter,
             isLoading: false
           });
           if (result.token) {
@@ -169,7 +199,8 @@ class Homepage extends Component {
         });
     } else {
       this.setState({
-        isAuthenticated: false
+        isAuthenticated: false,
+        is_sitter: false
       });
       alert("Please fullfill the signup Requirement");
       // console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
@@ -292,7 +323,6 @@ class Homepage extends Component {
       [name]: value
     });
   };
-  // getProfile = () => {};
   render() {
     return (
       <React.Fragment>
@@ -372,6 +402,11 @@ class Homepage extends Component {
                   last_name={this.state.lastName}
                   email={this.state.email}
                   isLoading={this.state.isLoading}
+                  handleGenderChange={this.handleGenderChange}
+                  handleDateChange={this.handleDateChange}
+                  handleTextChange={this.handleTextChange}
+                  submitProfile={this.submitProfile}
+                  profile_data={this.state.profile_data}
                 />
               );
             }}
