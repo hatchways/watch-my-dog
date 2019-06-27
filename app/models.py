@@ -1,7 +1,8 @@
 from app import login
+import os
 
-from flask import current_app, session, abort
-from flask_login import UserMixin
+from flask import current_app, session, abort, g
+from flask_login import UserMixin, user_loaded_from_request
 from werkzeug.security import check_password_hash, generate_password_hash
 from time import time
 from datetime import datetime, timedelta
@@ -11,6 +12,7 @@ from pymodm import MongoModel, fields
 from pymongo.write_concern import WriteConcern
 from bson.objectid import ObjectId
 
+# from app.api.errors import error_response
 
 # class User(UserMixin):
 #     def __init__(self, username, id):
@@ -40,7 +42,7 @@ def get_one(Collection, fieldname, fieldvalue):
         one = Collection.objects.get({fieldname: fieldvalue})
         print(fieldname, one.first_name)
     except Collection.DoesNotExist:
-        print('notfound')
+        print('object not found')
         one = None
     return one
 
@@ -85,8 +87,15 @@ class User(UserMixin, MongoModel):
         now = datetime.now()
         if self.token and self.token_expiration > now + timedelta(seconds=3600):
             return self.token
-        self.token = jwt.encode({'token': self.username, 'exp': time() + expires_in},
-                                 current_app.config["SECRET_KEY"],
+        try:
+            payload = {
+                        'token': self.get_id(),
+                        'exp': time() + expires_in,
+                        'time_generated': time()
+                       }
+        except Exception as e:
+            return e
+        self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
         # self.update({"$set": {"token": token }})
         self.token_expiration = now + timedelta(seconds=expires_in)
@@ -99,7 +108,13 @@ class User(UserMixin, MongoModel):
 
     @staticmethod
     def check_token(token):
-        user = get_one(User, 'token', token)
+        try:
+            payload = jwt.decode(token, current_app.config["SECRET_KEY"])
+            user_id = payload['token']
+        except Exception as e:
+            return e
+
+        user = get_one(User, '_id', user_id)
         print('exp', user.token_expiration)
         print("now", datetime.now())
         if user is None or user.token_expiration < datetime.now():
@@ -117,6 +132,8 @@ class User(UserMixin, MongoModel):
         }
         if include_email:
             data['email'] = self.email
+        if self.token:
+            data['token'] = self.token
         return data
 
     def from_dict(self, data, new_user=False):
@@ -161,8 +178,15 @@ class Sitter(UserMixin, MongoModel):
         now = datetime.now()
         if self.token and self.token_expiration > now + timedelta(seconds=3600):
             return self.token
-        self.token = jwt.encode({'token': self.username, 'exp': time() + expires_in},
-                                 current_app.config["SECRET_KEY"],
+        try:
+            payload = {
+                        'token': self.get_id(),
+                        'exp': time() + expires_in,
+                        'time_generated': time()
+                       }
+        except Exception as e:
+            return e
+        self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
         # self.update({"$set": {"token": token }})
         self.token_expiration = now + timedelta(seconds=expires_in)
@@ -197,13 +221,19 @@ class Sitter(UserMixin, MongoModel):
 
     @staticmethod
     def check_token(token):
-        user = get_one(Sitter, 'token', token)
+        try:
+            payload = jwt.decode(token, current_app.config["SECRET_KEY"])
+            user_id = payload['token']
+        except Exception as e:
+            # return error_response(e)  ??? how to resolve this import loop
+            return e
+
+        user = get_one(Sitter, '_id', user_id)
         print('exp', user.token_expiration)
         print("now", datetime.now())
         if user is None or user.token_expiration < datetime.now():
             return None
         return user
-
 
 
 class Owner(UserMixin, MongoModel):
@@ -239,8 +269,15 @@ class Owner(UserMixin, MongoModel):
         now = datetime.now()
         if self.token and self.token_expiration > now + timedelta(seconds=3600):
             return self.token
-        self.token = jwt.encode({'token': self.username, 'exp': time() + expires_in},
-                                 current_app.config["SECRET_KEY"],
+        try:
+            payload = {
+                        'token': self.get_id(),
+                        'exp': time() + expires_in,
+                        'time_generated': time()
+                       }
+        except Exception as e:
+            return e
+        self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
         # self.update({"$set": {"token": token }})
         self.token_expiration = now + timedelta(seconds=expires_in)
@@ -274,7 +311,13 @@ class Owner(UserMixin, MongoModel):
 
     @staticmethod
     def check_token(token):
-        user = get_one(Owner, 'token', token)
+        try:
+            payload = jwt.decode(token, current_app.config["SECRET_KEY"])
+            user_id = payload['token']
+        except Exception as e:
+            return e
+
+        user = get_one(Owner, '_id', user_id)
         print('exp', user.token_expiration)
         print("now", datetime.now())
         if user is None or user.token_expiration < datetime.now():
@@ -282,11 +325,79 @@ class Owner(UserMixin, MongoModel):
         return user
 
 
+class Notification(MongoModel):
+    # sent_to = fields.ReferenceField("Sitter, Owner")
+    # type_of_notification = fields.IntegerField()
+    # is_read = fields.BooleanField()
+    pass
+
+
+class AppointmentRequest(MongoModel):
+    created_by = fields.ReferenceField(Owner)
+    request_to = fields.ReferenceField(Sitter)
+    status = fields.IntegerField()
+    timestamp = fields.DateTimeField()
+    time_reserved = fields.DateTimeField()
+    cancellable = fields.BooleanField()
+
+    def confirm(self):
+        pass
+
+    def reject(self):
+        pass
+
+    def create_notification(self):
+        pass
+
+    def create_reminder(self):
+        pass
+
+    def rearrange(self):
+        pass
+
+    def cancel(self):
+        pass
+
+
+@user_loaded_from_request.connect
+def user_loaded_from_request():
+    g.login_via_request = True
+
+
+@login.request_loader
+def load_user_from_request(request):
+    if request:
+        print('request', request)
+        for arg in request.args:
+            print('arg', arg)
+        # with token
+        json = request.get_json()
+        if json:
+            is_sitter = json['is_sitter']
+            collection = Sitter if is_sitter else Owner
+
+            token = json['token']
+            if token:
+                if is_sitter:
+                    print('search in sitter')
+                print('search in owner')
+                user = collection.check_token(token)
+                print('u_id', ObjectId(user.pk))
+                return user
+            # with credentials
+            email = json['email']
+            if email:
+                user = get_one(collection, 'email', email)
+                return user
+    return None
+
+
 @login.user_loader
 def load_user(u_id):
     print('u_id', ObjectId(u_id))
+    print(session)
     if session['is_sitter']:
-        print('seach in sitter')
-        return get_one(Sitter,'_id', ObjectId(u_id))
+        print('search in sitter')
+        return get_one(Sitter, '_id', ObjectId(u_id))
     print('search in owner')
-    return get_one(Owner,'_id', ObjectId(u_id))
+    return get_one(Owner, '_id', ObjectId(u_id))

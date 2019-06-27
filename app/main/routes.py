@@ -7,6 +7,7 @@ from . import main_bp
 from app.main.forms import LoginForm, RegisterForm
 from app.models import get_one, Owner, Sitter, get_one_or_404
 from app.errors.handlers import json_response_needed, error_response
+from app.api.auth import token_auth
 
 # _users = mongo.db.users
 
@@ -14,52 +15,73 @@ from app.errors.handlers import json_response_needed, error_response
 @main_bp.route('/')
 @main_bp.route('/index/')
 def index():
+    if json_response_needed():
+        token = request.get_json()['token']
+        is_sitter = request.get_json()['is_sitter']
+        collection = Sitter if is_sitter else Owner
+        if token:
+            u = collection.check_token(token)
+            return jsonify(u.to_dict())
+        else:
+            return '', 200
     return render_template('index.html')
 
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        print('current user')
-        print(current_user.first_name)
+    title = "log in as a dog sitter"
     if current_user.is_anonymous:
         print("anonymous")
 
-    title = "log in as a dog sitter"
     if json_response_needed():
-        # parse request
-        is_sitter = request.args.get('is_sitter')
-        if is_sitter:
-            model = Sitter
-        else:
-            model = Owner
-
-        email = request.args.get('email')
-        u = get_one_or_404(model, 'email', email)
-        if u:
-            if not u.check_password(request.args.get['password']):
-                abort(404)
-            login_user(u, remember=request.args.get('remember'))
-            session['is_sitter'] = True
-            response = jsonify(u.to_dict())
+        if current_user.is_authenticated:
+            print('current user')
+            print(current_user.first_name)
+            response = jsonify(current_user.to_dict())
             response.status_code = 200
             return response
+        # parse request
+        is_sitter = request.get_json()['is_sitter']
+        collection = Sitter if is_sitter else Owner
+        token = request.get_json()['token']
 
+        email = request.get_json()['email']
+        password = request.get_json()['password']
+
+        if token:
+            if is_sitter:
+                print('search in sitter')
+            print('search in owner')
+            user = collection.check_token(token)
+            login_user(user)
+
+        if email:
+            user = get_one(collection, 'email', email)
+        if user:
+            if not user.check_password(password):
+                abort(401)
+            login_user(user)
+            response = jsonify(user.to_dict())
+            response.status_code = 200
+            return response
+        return error_response(404)
+
+    if current_user.is_authenticated:
+        print('current user')
+        print(current_user.first_name)
+        return redirect(url_for('main.index'))
     form = LoginForm()
     if form.validate_on_submit():
         is_sitter = form.is_sitter.data
-        if is_sitter:
-            model = Sitter
-        else:
-            model = Owner
-
-        u = get_one(model, 'first_name', form.username.data)
+        collection = Sitter if is_sitter else Owner
+        u = get_one(collection, 'first_name', form.username.data)
         if u is None or not u.check_password(form.password.data):
             print("invalid credential")
             return redirect(url_for('main.login'))
         else:
             msg = login_user(u, remember=form.remember.data)
-            session['is_sitter'] = True
+            # session['is_sitter'] = True
+            session['is_sitter'] = True if is_sitter else False
             print('login', msg)
             return redirect(url_for('main.index'))
     return render_template("login.html", form=form, title=title)
@@ -69,9 +91,9 @@ def login():
 @login_required
 def logout():
     logout_user()
-    session.pop('is_sitter')
-    if not json_response_needed():
-        return redirect(url_for('main.index'))
+    if json_response_needed():
+        return '', 200
+    return redirect(url_for('main.index'))
 
 
 @main_bp.route('/register', methods=["GET", "POST"])
@@ -79,49 +101,43 @@ def register():
     title = "Register an account"
     if json_response_needed():
         # parse request
-        is_sitter = request.args.get('is_sitter')
+        is_sitter = request.get_json()['is_sitter']
+        collection = Sitter if is_sitter else Owner
 
-        if is_sitter:
-            model = Sitter
-        else:
-            model = Owner
-
-        email = request.args.get('email')
-        u = get_one_or_404(model, 'email', email)
+        email = request.get_json()['email']
+        u = get_one_or_404(collection, 'email', email)
         if u:
             error_response(500, "user exists")
-        else:
-            u = model(
-                first_name=request.args.get('first_name'),
-                last_name=request.args.get('last_name'),
-                email=request.args.get('email'),
-                timestamp=datetime.utcnow()
-            )
-            response = jsonify(u.to_dict())
-            response.status_code = 201
-            return response
+        u = collection(
+            first_name=request.get_json()['first_name'],
+            last_name=request.get_json()['last_name'],
+            email=request.get_json()['email'],
+            timestamp=datetime.utcnow()
+        )
+        u.set_password(request.get_json()['password'])
+        u.get_token(3600*24*10)
+        u.save()
+        response = jsonify(u.to_dict())
+        response.status_code = 201
+        return response
 
     form = RegisterForm()
     if form.validate_on_submit():
         print('submit')
         is_sitter = form.is_sitter.data
-        if is_sitter:
-            model = Sitter
-        else:
-            model = Owner
-        u = get_one(model, 'first_name', form.first_name.data)
+        collection = Sitter if is_sitter else Owner
+        u = get_one(collection, 'first_name', form.first_name.data)
         if u:
             print('user exists')
             return redirect(url_for('main.index'))
-        else:
-            u = model(
-                first_name=form.username.data,
-                email=form.email.data,
-                timestamp=datetime.utcnow()
-            )
-            u.set_password(form.password.data)
-            u.save()
-            print('user added')
+        u = collection(
+            first_name=form.username.data,
+            email=form.email.data,
+            timestamp=datetime.utcnow()
+        )
+        u.set_password(form.password.data)
+        u.save()
+        print('user added')
     #     # flash("Registered successfully!")
         return redirect(url_for('main.index'))
     return render_template("register.html", form=form, title=title)
@@ -152,19 +168,20 @@ def register():
 #         return redirect(url_for('index'))
 #     return render_template("register.html", form=form, title=title)
 
+
 @main_bp.route('/user_owner/<username>')
-@login_required
+@token_auth.login_required
 def user_owner(username):
     user = get_one(Owner, 'username', username)
     if user:
         return jsonify(user.to_dict())
-    return '404'
+    return error_response(404)
 
 
 @main_bp.route('/user_sitter/<username>')
-@login_required
+@token_auth.login_required
 def user_sitter(username):
     user = get_one(Sitter, 'username', username)
     if user:
         return jsonify(user.to_dict())
-    return '400'
+    return error_response(404)
