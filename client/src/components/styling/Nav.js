@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
-import { AppBar, Toolbar } from "@material-ui/core";
+import { AppBar, Toolbar, IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import dogPaw from "../../static/images/dog-paw.png";
@@ -60,7 +60,13 @@ export default withStyles(styles)(
       this.props.handleLogOut(e);
     };
     render() {
-      const { classes, isAuthenticated, history, is_sitter } = this.props;
+      const {
+        classes,
+        isAuthenticated,
+        history,
+        is_sitter,
+        profile_data
+      } = this.props;
       // creating a conditional JSX to render based on whether the user is logged in or not.
       const navContent = [];
       if (!isAuthenticated) {
@@ -97,14 +103,14 @@ export default withStyles(styles)(
             >
               Messages
             </Button>
-            <Button
-              component={Link}
-              to="/profile"
-              size="medium"
-              className={`${classes.button} + ${classes.signup}`}
-            >
-              Profile
-            </Button>
+            <IconButton component={Link} to="/profile" size="medium">
+              {" "}
+              <Avatar
+                alt="Remy Sharp"
+                src={profile_data.profile_image}
+                className={classes.avatar}
+              />
+            </IconButton>
           </Fragment>
         );
       }

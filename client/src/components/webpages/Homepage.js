@@ -13,6 +13,7 @@ import {
   getFromStorage,
   removeFromStorage
 } from "../Utilities/storage";
+import aws from "../Utilities/keys";
 
 // email and password validation by Regular expression
 const emailRegex = RegExp(
@@ -62,7 +63,8 @@ class Homepage extends Component {
         about:
           "Do play they miss give so up. Words to up style of since world. We leaf to snug on no need. Way own uncommonly travelling now acceptance bed compliment solicitude. Dissimilar admiration so terminated no in contrasted it. Advantages entreaties mr he apartments do. Limits far yet turned highly repair parish talked six. Draw fond rank form nor the day eat.\r\n",
         location: "Toronto",
-        rate: "15"
+        rate: "15",
+        profile_image: "https://picsum.photos/id/234/200/300"
       }
     };
   }
@@ -318,6 +320,46 @@ class Homepage extends Component {
       [name]: value
     });
   };
+  uploadPhoto = e => {
+    const file = e.target.files[0].name.split(".");
+    let fileName = file[0];
+    let fileType = file[1];
+    console.log("Preparing the upload");
+    axios
+      .post("/upload_profile_image", {
+        fileName: fileName,
+        fileType: fileType
+      })
+      .then(response => {
+        var returnData = response.data.data.returnData;
+        var signedRequest = returnData.signedRequest;
+        var url = returnData.url;
+        this.setState({
+          ...this.state.profile_data,
+          profile_image: url
+        });
+        console.log("Recieved a signed request " + signedRequest);
+
+        // Put the fileType in the headers for the upload
+        var options = {
+          headers: {
+            "Content-Type": fileType
+          }
+        };
+        axios
+          .put(signedRequest, file, options)
+          .then(result => {
+            console.log("Response from s3");
+            this.setState({ success: true });
+          })
+          .catch(error => {
+            alert("ERROR " + JSON.stringify(error));
+          });
+      })
+      .catch(error => {
+        alert(JSON.stringify(error));
+      });
+  };
   render() {
     return (
       <React.Fragment>
@@ -326,6 +368,7 @@ class Homepage extends Component {
           is_sitter={this.state.is_sitter}
           isAuthenticated={this.state.isAuthenticated}
           handleLogOut={this.handleLogOut}
+          profile_data={this.state.profile_data}
         />{" "}
         <Switch>
           <Route exact path="/" component={Grids} />
@@ -401,6 +444,7 @@ class Homepage extends Component {
                   handleDateChange={this.handleDateChange}
                   handleTextChange={this.handleTextChange}
                   submitProfile={this.submitProfile}
+                  uploadPhoto={this.uploadPhoto}
                   profile_data={this.state.profile_data}
                 />
               );

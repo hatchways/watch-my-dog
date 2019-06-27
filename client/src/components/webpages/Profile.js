@@ -22,10 +22,10 @@ const cstyle = theme => ({
     }
   },
   profileWrapper: {
-    margin: theme.spacing(15, 5)
+    margin: theme.spacing(15, 5, 5, 5)
   },
   paper: {
-    padding: theme.spacing(10, 5)
+    padding: theme.spacing(5, 5)
   },
   link: {
     textDecoration: "none",
@@ -50,6 +50,7 @@ class Profile extends Component {
       handleGenderChange,
       handleTextChange,
       submitProfile,
+      uploadPhoto,
       profile_data
     } = this.props;
     if (isLoading) {
@@ -139,7 +140,13 @@ class Profile extends Component {
                   <Route
                     path={`/profile/photo`}
                     render={() => {
-                      return <ProfilePhoto match={match.path} />;
+                      return (
+                        <ProfilePhoto
+                          match={match.path}
+                          uploadPhoto={uploadPhoto}
+                          profile_data={this.props.profile_data}
+                        />
+                      );
                     }}
                   />
                   <Route
