@@ -29,6 +29,7 @@ body {
   font-family: "Gilroy";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* background-color: #a7a7a7; */
 }
 
 code {

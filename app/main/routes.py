@@ -62,6 +62,7 @@ def login():
                 abort(401)
             login_user(user)
             response = jsonify(user.to_dict())
+
             response.status_code = 200
             return response
         return error_response(404)
@@ -96,6 +97,7 @@ def logout():
     return redirect(url_for('main.index'))
 
 
+
 @main_bp.route('/register', methods=["GET", "POST"])
 def register():
     title = "Register an account"
@@ -127,6 +129,7 @@ def register():
         is_sitter = form.is_sitter.data
         collection = Sitter if is_sitter else Owner
         u = get_one(collection, 'first_name', form.first_name.data)
+
         if u:
             print('user exists')
             return redirect(url_for('main.index'))
@@ -169,19 +172,22 @@ def register():
 #     return render_template("register.html", form=form, title=title)
 
 
-@main_bp.route('/user_owner/<username>')
+@main_bp.route('/user_owner', methods=['GET', 'POST'])
 @token_auth.login_required
-def user_owner(username):
-    user = get_one(Owner, 'username', username)
+def user_owner(token):
+    user = get_one(Owner, 'token', token)
+
     if user:
         return jsonify(user.to_dict())
     return error_response(404)
 
 
-@main_bp.route('/user_sitter/<username>')
+@main_bp.route('/user_sitter', methods=['GET', 'POST'])
 @token_auth.login_required
-def user_sitter(username):
-    user = get_one(Sitter, 'username', username)
+def user_sitter(token):
+    token = request.get_json()['token']
+    user = get_one(Sitter, 'token', token)
     if user:
         return jsonify(user.to_dict())
     return error_response(404)
+

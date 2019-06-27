@@ -204,10 +204,12 @@ class Sitter(UserMixin, MongoModel):
             'last_name': self.last_name,
             'date_registered': self.timestamp,
             'gender': self.gender,
-            'about_me': self.about_me
+            'about_me': self.about_me, 
         }
         if include_email:
             data['email'] = self.email
+        if self.token:
+            data['token'] = self.token
         return data
 
     def from_dict(self, data, new_user=False):
@@ -217,7 +219,6 @@ class Sitter(UserMixin, MongoModel):
                 setattr(self, field, data[field])
             if new_user and 'password' in data:
                 self.set_password(data['password'])
-
 
     @staticmethod
     def check_token(token):
@@ -299,8 +300,9 @@ class Owner(UserMixin, MongoModel):
         }
         if include_email:
             data['email'] = self.email
-        return data
-
+        if self.token:
+            data['token'] = self.token
+                               
     def from_dict(self, data, new_user=False):
         for field in ['first_name', 'last_name', 'email', 'date_registered',
                       'gender', 'about_me']:
