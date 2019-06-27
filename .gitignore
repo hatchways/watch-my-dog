@@ -107,3 +107,4 @@ ENV/
 *.sqlite
 
 .idea/
+./client/src/components/Utilities/keys.js
