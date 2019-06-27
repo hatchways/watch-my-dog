@@ -72,7 +72,8 @@ def logout():
     session.pop('is_sitter')
     if not json_response_needed():
         return redirect(url_for('main.index'))
-    return "", 201
+    return "", 302
+
 
 
 @main_bp.route('/register', methods=["GET", "POST"])
@@ -81,6 +82,7 @@ def register():
     if json_response_needed():
         # parse request
         is_sitter = request.get_json()['is_sitter']
+
         if is_sitter:
             model = Sitter
         else:
@@ -89,6 +91,7 @@ def register():
         email = request.get_json()['email']
         print('content',email)
         u = get_one(model, 'email', email)
+
         if u:
             error_response(500, "user exists")
         else:
@@ -173,4 +176,4 @@ def user_sitter():
     print(user.token)
     if user:
         return jsonify(user.to_dict())
-    return '400'
+    return '404'
