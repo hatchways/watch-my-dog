@@ -94,11 +94,12 @@ class Homepage extends Component {
     });
   };
   verify = () => {
-    const token_type = getFromStorage("dog_sitter")
+    const token_type = !!getFromStorage("dog_sitter")
       ? "dog_sitter"
       : "dog_owner";
-    const url = getFromStorage("dog_sitter") ? "/user_sitter" : "/user_owner";
+    const url = !!getFromStorage("dog_sitter") ? "/user_sitter" : "/user_owner";
     const obj = getFromStorage(token_type);
+    console.log(token_type, url, obj);
     if (obj && obj.token) {
       const { token } = obj;
       this.setState({
