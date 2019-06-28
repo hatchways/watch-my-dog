@@ -174,9 +174,10 @@ def register():
 
 @main_bp.route('/user_owner', methods=['GET', 'POST'])
 @token_auth.login_required
-def user_owner(token):
+def user_owner():
+    token = request.get_json()['token']
     user = get_one(Owner, 'token', token)
-
+    print("owner",user)
     if user:
         return jsonify(user.to_dict())
     return error_response(404)
@@ -184,9 +185,10 @@ def user_owner(token):
 
 @main_bp.route('/user_sitter', methods=['GET', 'POST'])
 @token_auth.login_required
-def user_sitter(token):
+def user_sitter():
     token = request.get_json()['token']
     user = get_one(Sitter, 'token', token)
+    print("sitter",user)
     if user:
         return jsonify(user.to_dict())
     return error_response(404)

@@ -39,12 +39,19 @@ def basic_auth_error():
 #     return user.check_password(password)
 
 
+# @token_auth.verify_token
+# def verify_token(token):
+#     g.current_user = User.check_token(token) if token else None
+#     print(g.current_user)
+#     return g.current_user is not None
+
 @token_auth.verify_token
 def verify_token(token):
-    g.current_user = User.check_token(token) if token else None
-    print(g.current_user)
-    return g.current_user is not None
-
+   g.current_user = Owner.check_token(token) if token else None
+   if not g.current_user:
+       g.current_user = Sitter.check_token(token) if token else None
+   print(g.current_user)
+   return g.current_user is not None
 
 @token_auth.error_handler
 def token_auth_error():
