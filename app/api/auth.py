@@ -1,6 +1,6 @@
 from flask import g
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-from app.models import User, get_one
+from app.models import User, get_one, Owner, Sitter
 from .errors import error_response
 
 basic_auth = HTTPBasicAuth()
@@ -47,9 +47,10 @@ def basic_auth_error():
 
 @token_auth.verify_token
 def verify_token(token):
-   g.current_user = Owner.check_token(token) if token else None
+   print("why")
+   g.current_user = Sitter.check_token(token) if token else None
    if not g.current_user:
-       g.current_user = Sitter.check_token(token) if token else None
+       g.current_user = Owner.check_token(token) if token else None
    print(g.current_user)
    return g.current_user is not None
 

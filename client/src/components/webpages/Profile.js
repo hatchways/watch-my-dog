@@ -51,6 +51,7 @@ class Profile extends Component {
       handleTextChange,
       submitProfile,
       uploadPhoto,
+      deletePhoto,
       profile_data
     } = this.props;
     if (isLoading) {
@@ -144,6 +145,7 @@ class Profile extends Component {
                         <ProfilePhoto
                           match={match.path}
                           uploadPhoto={uploadPhoto}
+                          deletePhoto={deletePhoto}
                           profile_data={this.props.profile_data}
                         />
                       );

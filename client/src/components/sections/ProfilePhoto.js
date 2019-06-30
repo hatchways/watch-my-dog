@@ -35,6 +35,15 @@ export default function ProfilePhoto(props) {
     e.preventDefault();
     props.uploadPhoto(e);
   };
+  const deletePhoto = e => {
+    e.preventDefault();
+    props.deletePhoto(e);
+  };
+  const disabled =
+    props.profile_data.profile_image ===
+    "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+      ? true
+      : false;
   return (
     <div>
       <Typography variant="h4" className={classes.text} gutterBottom>
@@ -65,6 +74,7 @@ export default function ProfilePhoto(props) {
           multiple
           type="file"
           onChange={uploadPhoto}
+          name="picture"
         />
         <label htmlFor="contained-button-file">
           <Button
@@ -82,7 +92,11 @@ export default function ProfilePhoto(props) {
         alignItems="center"
         className={classes.margin}
       >
-        <Button className={classes.button}>
+        <Button
+          className={classes.button}
+          onClick={deletePhoto}
+          disabled={disabled}
+        >
           <DeleteIcon fontSize="large" />
           Delete Photo
         </Button>{" "}
