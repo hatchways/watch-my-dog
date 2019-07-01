@@ -19,14 +19,13 @@ def get_user(username):
 def update_profile():
    is_sitter = request.get_json()['is_sitter']
    collection = Sitter if is_sitter else Owner
-   print(request.get_json()['profile_data'])
    profile_data = request.get_json()['profile_data']
    birthdate = profile_data['birthdate']
    gender = profile_data['gender']
    about_me = profile_data['about_me']
    location = profile_data['location']
    charge = profile_data['rate']
-
+   
    token = request.get_json()['token']
    u = collection.check_token(token)
    u.birthdate = birthdate

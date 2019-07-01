@@ -108,3 +108,4 @@ ENV/
 
 .idea/
 ./client/src/components/Utilities/keys.js
+.vscode/*

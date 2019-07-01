@@ -332,8 +332,6 @@ class Owner(UserMixin, MongoModel):
         user = get_one(Owner, '_id', ObjectId(user_id))
         if user is None or user.token_expiration < datetime.now():
             return None
-            # print('exp', user.token_expiration)
-            # print("now", datetime.now())
         return user
 
 

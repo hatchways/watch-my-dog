@@ -31,34 +31,14 @@ def index():
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
     title = "log in as a dog sitter"
-    # if current_user.is_anonymous:
-    #     print("anonymous")
-
     if json_response_needed():
-        # not using session for login or registrations 
-        # so remove current user from the code 
-        # bcoz that results in sending the same token 
-        # if current_user.is_authenticated:
-            # print('current user')
-            # print(current_user.first_name)
-            # response = jsonify(current_user.to_dict())
-            # response.status_code = 200
-            # return response
-
         # parse request
         is_sitter = request.get_json()['is_sitter']
         collection = Sitter if is_sitter else Owner
-        # token = request.get_json()['token']
 
         email = request.get_json()['email']
         password = request.get_json()['password']
 
-        # if token:
-        #     if is_sitter:
-        #         print('search in sitter')
-        #     print('search in owner')
-        #     user = collection.check_token(token)
-        #     login_user(user)
 
         if email:
             user = get_one(collection, 'email', email)
@@ -72,25 +52,6 @@ def login():
             return response
         return error_response(404)
 
-    # if current_user.is_authenticated:
-    #     print('current user')
-    #     print(current_user.first_name)
-    #     return redirect(url_for('main.index'))
-    # form = LoginForm()
-    # if form.validate_on_submit():
-    #     is_sitter = form.is_sitter.data
-    #     collection = Sitter if is_sitter else Owner
-    #     u = get_one(collection, 'first_name', form.username.data)
-    #     if u is None or not u.check_password(form.password.data):
-    #         print("invalid credential")
-    #         return redirect(url_for('main.login'))
-    #     else:
-    #         msg = login_user(u, remember=form.remember.data)
-    #         # session['is_sitter'] = True
-    #         session['is_sitter'] = True if is_sitter else False
-    #         print('login', msg)
-    #         return redirect(url_for('main.index'))
-    # return render_template("login.html", form=form, title=title)
 
 
 @main_bp.route("/logout")
@@ -128,54 +89,6 @@ def register():
         response = jsonify(u.to_dict())
         response.status_code = 201
         return response
-
-    # form = RegisterForm()
-    # if form.validate_on_submit():
-    #     print('submit')
-    #     is_sitter = form.is_sitter.data
-    #     collection = Sitter if is_sitter else Owner
-    #     u = get_one(collection, 'first_name', form.first_name.data)
-
-    #     if u:
-    #         print('user exists')
-    #         return redirect(url_for('main.index'))
-    #     u = collection(
-    #         first_name=form.username.data,
-    #         email=form.email.data,
-    #         timestamp=datetime.utcnow()
-    #     )
-    #     u.set_password(form.password.data)
-    #     u.save()
-    #     print('user added')
-    # #     # flash("Registered successfully!")
-    #     return redirect(url_for('main.index'))
-    # return render_template("register.html", form=form, title=title)
-
-
-# flask-pymongo @app.route('/register', methods=["GET", "POST"])
-# def register():
-#     title = "Register an account"
-#     form = RegisterForm()
-#     if form.validate_on_submit():
-#         print('submit')
-#     #     # user = tst_db.users.find_one({'email':form.email.data}) or tst_db.users.find_one({'username':form.username.data})
-#         u = _users.find_one({'username':form.username.data})
-#         if u:
-#             print('user exists')
-#             return redirect(url_for('index'))
-#         else:
-#             u = {
-#                 "username": form.username.data,
-#                 "email": form.email.data,
-#                 "password_hash": generate_password_hash(form.password.data),
-#                 "timestamp": datetime.utcnow()
-#             }
-#
-#             _users.insert_one(u)
-#             print('user added')
-#     #     # flash("Registered successfully!")
-#         return redirect(url_for('index'))
-#     return render_template("register.html", form=form, title=title)
 
 
 @main_bp.route('/user_owner', methods=['GET', 'POST'])
