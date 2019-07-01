@@ -12,35 +12,11 @@ from pymodm import MongoModel, fields
 from pymongo.write_concern import WriteConcern
 from bson.objectid import ObjectId
 
-# from app.api.errors import error_response
-
-# class User(UserMixin):
-#     def __init__(self, username, id):
-#         self.username = username
-#         self.id = id
-#         # self.password_hash = password_hash
-#         # self.email = email
-#
-#     @staticmethod
-#     def check_password(password_hash, password):
-#         return check_password_hash(password_hash, password)
-
-
-# @login.user_loader
-# def load_user(u_id):
-#     u = mongo.db.users.find_one({u'_id': u_id})
-#     print('iiiii')
-#     print(u_id)
-#     if u is None:
-#         print('u is none')
-    #     return None
-    # return User(id=u_id, username=u['username'])
 
 
 def get_one(Collection, fieldname, fieldvalue):
     try:
         one = Collection.objects.get({fieldname: fieldvalue})
-        print(fieldname, one.first_name)
     except Collection.DoesNotExist:
         print('object not found')
         one = None
@@ -50,7 +26,6 @@ def get_one(Collection, fieldname, fieldvalue):
 def get_one_or_404(Collection, fieldname, fieldvalue):
     try:
         one = Collection.objects.get({fieldname:fieldvalue})
-        print(fieldname, one.first_name)
     except Collection.DoesNotExist:
         abort(404)
     return one
@@ -127,7 +102,10 @@ class User(UserMixin, MongoModel):
             'last_name': self.last_name,
             'date_registered': self.timestamp,
             'gender': self.gender,
-            'about_me': self.about_me
+            'about_me': self.about_me,
+            'location': self.location,
+            'birthdate': self.birthdate,
+            'profile_image': self.profile_image or self.default_url
         }
         if include_email:
             data['email'] = self.email
@@ -145,6 +123,7 @@ class User(UserMixin, MongoModel):
 
 
 class Sitter(UserMixin, MongoModel):
+    default_url = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
     password_hash = fields.CharField()
     email = fields.EmailField()
     timestamp = fields.DateTimeField()
@@ -158,7 +137,7 @@ class Sitter(UserMixin, MongoModel):
     about_me = fields.CharField()
     charge = fields.FloatField()
     location = fields.CharField()
-    profile_image = fields.CharField()
+    profile_image = fields.CharField(default=default_url, blank=True)
 
     class Meta:
         write_concern = WriteConcern(j=True)
@@ -171,7 +150,6 @@ class Sitter(UserMixin, MongoModel):
         return check_password_hash(self.password_hash, password)
 
     def get_id(self):
-        print("during registration", self.pk)
         return str(self.pk)
 
     #token
@@ -187,7 +165,6 @@ class Sitter(UserMixin, MongoModel):
                        }
         except Exception as e:
             return e
-        print("################", self.get_id())        
         self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
         # self.update({"$set": {"token": token }})
@@ -210,7 +187,7 @@ class Sitter(UserMixin, MongoModel):
             'location': self.location,
             'rate': self.charge,
             'birthdate': self.birthdate,
-            'profile_image': self.profile_image
+            'profile_image': self.profile_image or self.default_url
         }
         if include_email:
             data['email'] = self.email
@@ -232,17 +209,15 @@ class Sitter(UserMixin, MongoModel):
             payload = jwt.decode(token, current_app.config["SECRET_KEY"], algorithm='HS256')
             user_id = payload['token']
         except Exception as e:
-            # return error_response(e)  ??? how to resolve this import loop
             return e
         user = get_one(Sitter, '_id', ObjectId(user_id))
-        # print('exp', user.token_expiration)
-        # print("now", datetime.now())
         if user is None or user.token_expiration < datetime.now():
             return None
         return user
 
 
 class Owner(UserMixin, MongoModel):
+    default_url = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
     password_hash = fields.CharField()
     email = fields.EmailField()
     timestamp = fields.DateTimeField()
@@ -252,10 +227,10 @@ class Owner(UserMixin, MongoModel):
     first_name = fields.CharField()
     last_name = fields.CharField()
     gender = fields.IntegerField()
-    birthdate = fields.DateTimeField()
+    birthdate = fields.CharField()
     about_me = fields.CharField()
     location = fields.CharField()
-    profile_image = fields.CharField()
+    profile_image = fields.CharField(default=default_url, blank=True)
 
 
     class Meta:
@@ -284,6 +259,7 @@ class Owner(UserMixin, MongoModel):
                        }
         except Exception as e:
             return e
+        print("inside Owner", self.get_id())        
         self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
         # self.update({"$set": {"token": token }})
@@ -304,14 +280,14 @@ class Owner(UserMixin, MongoModel):
             'gender': self.gender,
             'about_me': self.about_me,
             'location': self.location,
-            'rate': self.charge,
             'birthdate': self.birthdate,
-            'profile_image': self.profile_image
+            'profile_image': self.profile_image or self.default_url
         }
         if include_email:
             data['email'] = self.email
         if self.token:
             data['token'] = self.token
+        return data
                                
     def from_dict(self, data, new_user=False):
         for field in ['first_name', 'last_name', 'email', 'date_registered',
@@ -323,7 +299,6 @@ class Owner(UserMixin, MongoModel):
 
     @staticmethod
     def check_token(token):
-
         try:
             payload = jwt.decode(token, current_app.config["SECRET_KEY"], algorithm='HS256')
             user_id = payload['token']

@@ -52,7 +52,8 @@ class Profile extends Component {
       submitProfile,
       uploadPhoto,
       deletePhoto,
-      profile_data
+      profile_data,
+      is_sitter
     } = this.props;
     if (isLoading) {
       return (
@@ -128,6 +129,8 @@ class Profile extends Component {
                           handleTextChange={handleTextChange}
                           submitProfile={submitProfile}
                           profile_data={profile_data}
+                          is_sitter={is_sitter}
+
                         />
                       );
                     }}

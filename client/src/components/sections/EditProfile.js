@@ -48,7 +48,7 @@ class EditProfile extends Component {
     this.props.submitProfile(e);
   };
   render() {
-    const { classes, profile_data } = this.props;
+    const { classes, profile_data, is_sitter } = this.props;
     return (
       <div>
         <Grid container alignItems="center" justify="center" spacing={5}>
@@ -217,6 +217,7 @@ class EditProfile extends Component {
               />
             </Grid>
           </Grid>
+          {(is_sitter)?
           <Grid container item xs={12} alignItems="center" spacing={4}>
             <Grid item xs={3}>
               <Typography component="h6" variant="button" align="right">
@@ -237,7 +238,9 @@ class EditProfile extends Component {
             <Typography component="h6" variant="h6" xs={3}>
               $
             </Typography>
-          </Grid>
+          </Grid>:
+           ""
+          }
         </Grid>
         <Grid container alignItems="center" justify="center" spacing={5}>
           <Grid item>

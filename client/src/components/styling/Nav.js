@@ -50,6 +50,9 @@ const styles = theme => ({
   avatar: {
     margin: theme.spacing(1),
     backgroundColor: "white"
+  },
+  logo_avatar:{
+    padding: theme.spacing(1),
   }
 });
 
@@ -125,7 +128,7 @@ export default withStyles(styles)(
             }
           >
             <Toolbar>
-              <Avatar className={classes.avatar} src={dogPaw} />
+              <Avatar className={`${classes.avatar} + ${classes.logo_avatar}`} src={dogPaw} />
               <Typography variant="h5" className={classes.title}>
                 <Link to="/" className={classes.link}>
                   Lovingsitter

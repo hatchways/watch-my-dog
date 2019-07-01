@@ -64,8 +64,7 @@ class Homepage extends Component {
         about_me: "",
         location: "",
         rate: "",
-        profile_image:
-          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+        profile_image:""
       }
     };
   }
@@ -135,10 +134,7 @@ class Homepage extends Component {
                 birthdate:
                   res.data.birthdate ||
                   "Fri Jan 01 1999 21:11:54 GMT-0500 (Eastern Standard Time)",
-                profile_image:
-                  res.data.profile_image === " "
-                    ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
-                    : res.data.profile_image
+                profile_image: res.data.profile_image
               }
             });
           } else {
@@ -284,6 +280,7 @@ class Homepage extends Component {
     this.setState({
       isLoading: true
     });
+    console.log("password for login", this.state.password)
     axios
       .post("/login", {
         email: this.state.email,
@@ -301,7 +298,6 @@ class Homepage extends Component {
         return result;
       })
       .then(result => {
-        console.log(result);
         setInStorage(lStorageName, {
           token: result.token
         });
@@ -428,7 +424,6 @@ class Homepage extends Component {
     }
   };
   deletePhoto = e => {
-    console.log("inside delete photo");
     const imageurl = "/delete_image";
     const token_type = !!getFromStorage("dog_sitter")
       ? "dog_sitter"
@@ -555,6 +550,7 @@ class Homepage extends Component {
                   submitProfile={this.submitProfile}
                   uploadPhoto={this.uploadPhoto}
                   deletePhoto={this.deletePhoto}
+                  is_sitter={this.state.is_sitter}
                   profile_data={this.state.profile_data}
                 />
               );

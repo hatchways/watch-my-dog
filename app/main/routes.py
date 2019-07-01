@@ -35,19 +35,16 @@ def login():
         # parse request
         is_sitter = request.get_json()['is_sitter']
         collection = Sitter if is_sitter else Owner
-
         email = request.get_json()['email']
         password = request.get_json()['password']
-
-
         if email:
             user = get_one(collection, 'email', email)
+
         if user:
             if not user.check_password(password):
                 abort(401)
             login_user(user)
             response = jsonify(user.to_dict())
-
             response.status_code = 200
             return response
         return error_response(404)
@@ -74,6 +71,7 @@ def register():
 
         email = request.get_json()['email']
         u = get_one(collection, 'email', email)
+        print("found anyone????", u)
         if u:
             error_response(500, "user exists")
         u = collection(
@@ -170,6 +168,6 @@ def d_file():
     token = request.get_json()['token']
     collection = Sitter if Sitter.check_token(token) else Owner
     u = collection.check_token(token)
-    u.profile_image = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+    u.profile_image = None
     u.save()
     return jsonify(u.to_dict(include_email=True))

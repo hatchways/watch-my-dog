@@ -24,15 +24,16 @@ def update_profile():
    gender = profile_data['gender']
    about_me = profile_data['about_me']
    location = profile_data['location']
-   charge = profile_data['rate']
-   
    token = request.get_json()['token']
+
    u = collection.check_token(token)
    u.birthdate = birthdate
    u.gender = gender
    u.about_me = about_me
    u.location = location
-   u.charge = charge
+   if is_sitter:
+    charge = profile_data['rate'] 
+    u.charge = charge
    u.save()
    return jsonify(u.to_dict(include_email=True))
 

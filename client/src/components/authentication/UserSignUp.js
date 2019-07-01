@@ -41,6 +41,9 @@ const styles = theme => ({
   error: {
     borderColor: theme.error + " !important",
     color: theme.error
+  },
+  logo_avatar:{
+    padding: theme.spacing(1),
   }
 });
 
@@ -59,7 +62,7 @@ class SignUp extends Component {
         <Container component="main" maxWidth="sm">
           <CssBaseline />
           <Paper className={classes.paper}>
-            <Avatar className={classes.avatar} src={dogPaw} />
+            <Avatar className={`${classes.avatar} + ${classes.logo_avatar}`} src={dogPaw} />
             <Typography component="h1" variant="h5">
               Owner Sign up
             </Typography>
