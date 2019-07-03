@@ -13,6 +13,7 @@ import {
   getFromStorage,
   removeFromStorage
 } from "../Utilities/storage";
+// import aws from "../Utilities/keys";
 
 // email and password validation by Regular expression
 const emailRegex = RegExp(
@@ -42,6 +43,7 @@ class Homepage extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      file: null,
       isLoading: true,
       isAuthenticated: false,
       is_sitter: false,
@@ -57,12 +59,12 @@ class Homepage extends Component {
         password: ""
       },
       profile_data: {
-        birthdate: new Date("2014-08-18T21:11:54"),
-        gender: "Male",
-        about:
-          "Do play they miss give so up. Words to up style of since world. We leaf to snug on no need. Way own uncommonly travelling now acceptance bed compliment solicitude. Dissimilar admiration so terminated no in contrasted it. Advantages entreaties mr he apartments do. Limits far yet turned highly repair parish talked six. Draw fond rank form nor the day eat.\r\n",
-        location: "Toronto",
-        rate: "15"
+        birthdate: "Fri Jan 01 1999 21:11:54 GMT-0500 (Eastern Standard Time)",
+        gender: 0,
+        about_me: "",
+        location: "",
+        rate: "",
+        profile_image:""
       }
     };
   }
@@ -87,15 +89,15 @@ class Homepage extends Component {
     this.setState({
       profile_data: {
         ...this.state.profile_data,
-        [e.target.name]: [e.target.value]
+        [e.target.name]: String([e.target.value])
       }
     });
   };
   verify = () => {
-    const token_type = getFromStorage("dog_sitter")
+    const token_type = !!getFromStorage("dog_sitter")
       ? "dog_sitter"
       : "dog_owner";
-    const url = getFromStorage("dog_sitter") ? "/user_sitter" : "/user_owner";
+    const url = !!getFromStorage("dog_sitter") ? "/user_sitter" : "/user_owner";
     const obj = getFromStorage(token_type);
     if (obj && obj.token) {
       const { token } = obj;
@@ -103,18 +105,37 @@ class Homepage extends Component {
         isLoading: true
       });
       // Verify token
-      axios
-        .post(url, { token })
+      const options = {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token },
+        data: {
+          token
+        },
+        url
+      };
+      axios(options)
+        // .post(url, { token })
         .then(res => res)
-        .then(json => {
-          if (json.status === 200) {
+        .then(res => {
+          if (res.status === 200) {
             this.setState({
               token,
               isAuthenticated: true,
-              firstName: "Luna",
-              lastName: "Rose",
-              email: "lunarose@brainclip.com",
-              isLoading: false
+              firstName: res.data.first_name,
+              lastName: res.data.last_name,
+              email: res.data.email,
+              isLoading: false,
+              profile_data: {
+                ...this.state.profile_data,
+                gender: res.data.gender === null ? 0 : res.data.gender,
+                about_me: res.data.about_me || "",
+                location: res.data.location || "",
+                rate: res.data.rate || "",
+                birthdate:
+                  res.data.birthdate ||
+                  "Fri Jan 01 1999 21:11:54 GMT-0500 (Eastern Standard Time)",
+                profile_image: res.data.profile_image
+              }
             });
           } else {
             throw Error("Unauthorized");
@@ -150,7 +171,51 @@ class Homepage extends Component {
   componentDidMount() {
     this.verify();
   }
-  submitProfile = () => {};
+  submitProfile = () => {
+    const token_type = !!getFromStorage("dog_sitter")
+      ? "dog_sitter"
+      : "dog_owner";
+    const url = "/api/update_profile/";
+    const obj = getFromStorage(token_type);
+    if (obj && obj.token) {
+      const { token } = obj;
+      this.setState({
+        isLoading: true
+      });
+      const options = {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token },
+        data: {
+          token,
+          is_sitter: !!getFromStorage("dog_sitter"),
+          profile_data: this.state.profile_data
+        },
+        url
+      };
+      axios(options)
+        .then(res => {
+          if (res.status === 200) {
+            this.setState({
+              isAuthenticated: true,
+              isLoading: false,
+              profile_data: {
+                ...this.state.profile_data,
+                gender: res.data.gender,
+                about_me: res.data.about_me,
+                location: res.data.location,
+                rate: res.data.rate,
+                birthdate: res.data.birthdate
+              }
+            });
+          } else {
+            throw Error;
+          }
+        })
+        .catch(error => {
+          console.log("error", error);
+        });
+    }
+  };
 
   handleSignUp = (e, sitter) => {
     e.preventDefault();
@@ -215,6 +280,7 @@ class Homepage extends Component {
     this.setState({
       isLoading: true
     });
+    console.log("password for login", this.state.password)
     axios
       .post("/login", {
         email: this.state.email,
@@ -223,7 +289,6 @@ class Homepage extends Component {
         remember: true
       })
       .then(res => {
-        console.log(res);
         return res.data;
       })
       .then(result => {
@@ -318,6 +383,87 @@ class Homepage extends Component {
       [name]: value
     });
   };
+  uploadPhoto = e => {
+    const token_type = !!getFromStorage("dog_sitter")
+      ? "dog_sitter"
+      : "dog_owner";
+    const obj = getFromStorage(token_type);
+    if (obj && obj.token) {
+      const { token } = obj;
+      this.setState({
+        isLoading: true,
+        file: e.target.files[0]
+      });
+      let formData = new FormData();
+      formData.append("file", e.target.files[0]);
+      const url = "/upload_profile_image";
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "multipart/form-data"
+        }
+      };
+      axios
+        .post(url, formData, config)
+        .then(response => {
+          this.setState({
+            profile_data: {
+              ...this.state.profile_data,
+              profile_image: response.data.profile_image
+            }
+          });
+        })
+        .then(() => {
+          this.setState({
+            isLoading: false
+          });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  };
+  deletePhoto = e => {
+    const imageurl = "/delete_image";
+    const token_type = !!getFromStorage("dog_sitter")
+      ? "dog_sitter"
+      : "dog_owner";
+    const obj = getFromStorage(token_type);
+    if (obj && obj.token) {
+      const { token } = obj;
+      this.setState({
+        isLoading: true
+      });
+      const image_url = this.state.profile_data.profile_image;
+      const file_name = image_url.substring(image_url.lastIndexOf("/") + 1);
+      const options2 = {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token },
+        data: {
+          file_name,
+          token
+        },
+        url: imageurl
+      };
+      axios(options2)
+        .then(res => {
+          this.setState({
+            profile_data: {
+              ...this.state.profile_data,
+              profile_image: res.data.profile_image
+            }
+          });
+        })
+        .then(() => {
+          this.setState({
+            isLoading: false
+          });
+        })
+        .catch(error => {
+          console.log("error", error);
+        });
+    }
+  };
   render() {
     return (
       <React.Fragment>
@@ -326,6 +472,7 @@ class Homepage extends Component {
           is_sitter={this.state.is_sitter}
           isAuthenticated={this.state.isAuthenticated}
           handleLogOut={this.handleLogOut}
+          profile_data={this.state.profile_data}
         />{" "}
         <Switch>
           <Route exact path="/" component={Grids} />
@@ -401,6 +548,9 @@ class Homepage extends Component {
                   handleDateChange={this.handleDateChange}
                   handleTextChange={this.handleTextChange}
                   submitProfile={this.submitProfile}
+                  uploadPhoto={this.uploadPhoto}
+                  deletePhoto={this.deletePhoto}
+                  is_sitter={this.state.is_sitter}
                   profile_data={this.state.profile_data}
                 />
               );

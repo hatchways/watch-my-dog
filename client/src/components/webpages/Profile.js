@@ -22,10 +22,10 @@ const cstyle = theme => ({
     }
   },
   profileWrapper: {
-    margin: theme.spacing(15, 5)
+    margin: theme.spacing(15, 5, 5, 5)
   },
   paper: {
-    padding: theme.spacing(10, 5)
+    padding: theme.spacing(5, 5)
   },
   link: {
     textDecoration: "none",
@@ -50,7 +50,10 @@ class Profile extends Component {
       handleGenderChange,
       handleTextChange,
       submitProfile,
-      profile_data
+      uploadPhoto,
+      deletePhoto,
+      profile_data,
+      is_sitter
     } = this.props;
     if (isLoading) {
       return (
@@ -126,6 +129,8 @@ class Profile extends Component {
                           handleTextChange={handleTextChange}
                           submitProfile={submitProfile}
                           profile_data={profile_data}
+                          is_sitter={is_sitter}
+
                         />
                       );
                     }}
@@ -139,7 +144,14 @@ class Profile extends Component {
                   <Route
                     path={`/profile/photo`}
                     render={() => {
-                      return <ProfilePhoto match={match.path} />;
+                      return (
+                        <ProfilePhoto
+                          match={match.path}
+                          uploadPhoto={uploadPhoto}
+                          deletePhoto={deletePhoto}
+                          profile_data={this.props.profile_data}
+                        />
+                      );
                     }}
                   />
                   <Route
