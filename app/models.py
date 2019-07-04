@@ -38,6 +38,8 @@ from bson.objectid import ObjectId
 
 
 def get_one(Collection, fieldname, fieldvalue):
+    # if fieldname == '_id':
+
     try:
         one = Collection.objects.get({fieldname: fieldvalue})
         print(fieldname, one.first_name)
@@ -155,9 +157,11 @@ class Sitter(UserMixin, MongoModel):
     first_name = fields.CharField()
     last_name = fields.CharField()
     gender = fields.IntegerField()
+    birthdate = fields.DateTimeField()
 
     about_me = fields.CharField()
-
+    location = fields.CharField()
+    # Sitter only
     charge = fields.FloatField()
 
     class Meta:
@@ -229,7 +233,7 @@ class Sitter(UserMixin, MongoModel):
             # return error_response(e)  ??? how to resolve this import loop
             return e
 
-        user = get_one(Sitter, '_id', user_id)
+        user = get_one(Sitter, '_id', ObjectId(user_id))
         print('exp', user.token_expiration)
         print("now", datetime.now())
         if user is None or user.token_expiration < datetime.now():
@@ -247,10 +251,10 @@ class Owner(UserMixin, MongoModel):
     first_name = fields.CharField()
     last_name = fields.CharField()
     gender = fields.IntegerField()
+    birthdate = fields.DateTimeField()
 
     about_me = fields.CharField()
-
-    charge = fields.FloatField()
+    location = fields.CharField()
 
     class Meta:
         write_concern = WriteConcern(j=True)
@@ -289,6 +293,21 @@ class Owner(UserMixin, MongoModel):
         # self.update({"$set":{'token_expiration': datetime.utcnow() - timedelta(seconds=1)}})
         self.token_expiration = datetime.now() - timedelta(seconds=1)
 
+    @staticmethod
+    def check_token(token):
+        try:
+            payload = jwt.decode()
+            user_id = payload['token']
+        except Exception as e:
+            return e
+
+        user = get_one(Owner, '_id', ObjectId(user_id))
+        print('exp', user.token_expiration)
+        print("now", datetime.now())
+        if user is None or user.token_expiration < datetime.now():
+            return None
+        return user
+
     # #api
     def to_dict(self, include_email=True):
         data = {
@@ -310,21 +329,6 @@ class Owner(UserMixin, MongoModel):
                 setattr(self, field, data[field])
             if new_user and 'password' in data:
                 self.set_password(data['password'])
-
-    @staticmethod
-    def check_token(token):
-        try:
-            payload = jwt.decode(token, current_app.config["SECRET_KEY"])
-            user_id = payload['token']
-        except Exception as e:
-            return e
-
-        user = get_one(Owner, '_id', user_id)
-        print('exp', user.token_expiration)
-        print("now", datetime.now())
-        if user is None or user.token_expiration < datetime.now():
-            return None
-        return user
 
 
 class Notification(MongoModel):
@@ -360,7 +364,8 @@ class AppointmentRequest(MongoModel):
     def cancel(self):
         pass
 
-
+    def finish(self):
+        
 @user_loaded_from_request.connect
 def user_loaded_from_request():
     g.login_via_request = True
@@ -378,7 +383,11 @@ def load_user_from_request(request):
             is_sitter = json['is_sitter']
             collection = Sitter if is_sitter else Owner
 
-            token = json['token']
+            try:
+                token = json['token']
+            except KeyError:
+                token = KeyError
+
             if token:
                 if is_sitter:
                     print('search in sitter')
