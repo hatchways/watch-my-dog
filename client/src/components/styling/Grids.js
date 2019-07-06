@@ -56,8 +56,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function Grids() {
+export default function Grids(props) {
   const classes = useStyles();
+  let location = '';
+  const search_sitters = props.search_sitters;
+  const handleChange = (e) =>{
+    const {value} = e.target;
+    location = value
+  }
   return (
     <div>
       <Grid container spacing={0}>
@@ -87,6 +93,7 @@ export default function Grids() {
                     className={classes.textField}
                     margin="normal"
                     variant="outlined"
+                    onChange={handleChange}
                   />
                   <br />
                   {/* <Dates /> */}
@@ -96,9 +103,10 @@ export default function Grids() {
                     className={classes.textField}
                     margin="normal"
                     variant="outlined"
+
                   />
                   <br />
-                  <Button size="large" className={classes.find} spacing={2}>
+                  <Button size="large" className={classes.find} spacing={2} onClick={()=>{search_sitters(location)}}>
                     Find my Dog Sitter
                   </Button>
                 </form>

@@ -7,13 +7,15 @@ import SignIn from "../authentication/SignIn";
 import UserSignUp from "../authentication/UserSignUp";
 import UserLogIn from "../authentication/UserLogIn";
 import Profile from "../webpages/Profile";
+import Notifications from "../webpages/Notifications";
 import axios from "axios";
 import {
   setInStorage,
   getFromStorage,
   removeFromStorage
 } from "../Utilities/storage";
-// import aws from "../Utilities/keys";
+import Search_grid from "../styling/Search_grid";
+
 
 // email and password validation by Regular expression
 const emailRegex = RegExp(
@@ -65,7 +67,8 @@ class Homepage extends Component {
         location: "",
         rate: "",
         profile_image:""
-      }
+      },
+      search_results:[]
     };
   }
 
@@ -170,6 +173,7 @@ class Homepage extends Component {
 
   componentDidMount() {
     this.verify();
+    console.log(!!this.state.search_results.length)
   }
   submitProfile = () => {
     const token_type = !!getFromStorage("dog_sitter")
@@ -464,6 +468,20 @@ class Homepage extends Component {
         });
     }
   };
+  search_sitters = (location)=>{
+      axios.post("/search_sitter", {location})
+        .then(res=>{
+          this.setState({
+            search_results: res.data.users
+          })
+        })
+        .then(()=>{
+          this.props.history.push(`/search/location?=${location}`);
+        })
+        .catch(error=>{
+          console.log(error);
+        })
+  }
   render() {
     return (
       <React.Fragment>
@@ -475,7 +493,25 @@ class Homepage extends Component {
           profile_data={this.state.profile_data}
         />{" "}
         <Switch>
-          <Route exact path="/" component={Grids} />
+          <Route exact path="/" render={props => {
+             return (
+                <Grids
+                  {...props}
+                  search_sitters={this.search_sitters}
+                />
+              );
+             }}
+          />
+          <Route path={`/search`} render={props => {
+             return (
+                <Search_grid
+                  {...props}
+                  search_sitters={this.search_sitters}
+                  users = {this.state.search_results}
+                />
+              );
+             }}
+          />
           <Route
             path="/signup"
             render={props => {
@@ -552,6 +588,16 @@ class Homepage extends Component {
                   deletePhoto={this.deletePhoto}
                   is_sitter={this.state.is_sitter}
                   profile_data={this.state.profile_data}
+                />
+              );
+            }}
+          />{" "}
+          <Route
+            path="/notifications"
+            render={ () => {
+              return (
+                <Notifications
+                  isAuthenticated={this.state.isAuthenticated}
                 />
               );
             }}

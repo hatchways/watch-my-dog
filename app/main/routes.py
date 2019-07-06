@@ -5,7 +5,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 
 from . import main_bp
 from app.main.forms import LoginForm, RegisterForm
-from app.models import get_one, Owner, Sitter, get_one_or_404
+from app.models import get_one, Owner, Sitter, get_one_or_404, get_many
 from app.errors.handlers import json_response_needed, error_response
 from app.api.auth import token_auth
 import boto3, botocore
@@ -51,6 +51,7 @@ def login():
 
 
 
+
 @main_bp.route("/logout")
 @login_required
 def logout():
@@ -89,11 +90,23 @@ def register():
         return response
 
 
+@main_bp.route('/search_sitter', methods=['GET', 'POST'])
+# @token_auth.login_required
+    # user = g.current_user
+def get_all_sitters():
+    location = request.get_json()['location']
+    if location :
+        collection = Sitter
+        many = get_many(collection, 'location', location)
+        response = jsonify({"users": [user.to_dict(include_token=False) for user in many]})
+        return response, 200
+    return error_response(404)
+
+
 @main_bp.route('/user_owner', methods=['GET', 'POST'])
 @token_auth.login_required
 def user_owner():
-    token = request.get_json()['token']
-    user = get_one(Owner, 'token', token)
+    user = g.current_user
     if user:
         return jsonify(user.to_dict())
     return error_response(404)
@@ -102,8 +115,7 @@ def user_owner():
 @main_bp.route('/user_sitter', methods=['GET', 'POST'])
 @token_auth.login_required
 def user_sitter():
-    token = request.get_json()['token']
-    user = get_one(Sitter, 'token', token)
+    user = g.current_user
     if user:
         return jsonify(user.to_dict())
     return error_response(404)
@@ -118,17 +130,15 @@ def upload_file():
     file = request.files['file']
     file.filename = secure_filename(file.filename)
     output   	  = upload_file_to_s3(file, current_app.config["S3_BUCKET"])
-    token = request.headers['Authorization'].split(" ")[1]
-    collection = Sitter if Sitter.check_token(token) else Owner
-    u = collection.check_token(token)
-    u.profile_image = str(output)
-    u.save()
-    return jsonify(u.to_dict(include_email=True))
+    user = g.current_user
+    user.profile_image = str(output)
+    user.save()
+    return jsonify(user.to_dict(include_email=True))
 
 
 def upload_file_to_s3(file, bucket_name, acl="public-read"):
     s3 = boto3.client(
-        "s3",
+        "s3",                               
         region_name='ca-central-1',
         aws_access_key_id=current_app.config["S3_KEY"],
         aws_secret_access_key=current_app.config["S3_SECRET"]
