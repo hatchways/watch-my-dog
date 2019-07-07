@@ -1,13 +1,16 @@
-from flask import render_template, redirect, url_for, jsonify, session, request, abort, g
+from flask import render_template, redirect, url_for, jsonify, current_app, request, abort, g
 from datetime import datetime
 
 
 from . import main_bp
-from app.main.forms import LoginForm, RegisterForm
-from app.models import get_one, Owner, Sitter, get_one_or_404
+from app.main.forms import RegisterForm
+from app.models import get_one, Owner, Sitter, get_one_or_404, get_many, Notification, AppointmentRequest
 from app.errors.handlers import json_response_needed, error_response
 from app.api.auth import token_auth
 from app.email import send_email
+from bson.objectid import ObjectId
+import pymongo
+
 # _users = mongo.db.users
 
 
@@ -28,9 +31,6 @@ def index():
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    title = "log in as a dog sitter"
-    # if current_user.is_anonymous:
-    #     print("anonymous")
 
     if json_response_needed():
         # parse request
@@ -50,7 +50,9 @@ def login():
             response.status_code = 200
             return response
         return error_response(404)
-
+    # title = "log in as a dog sitter"
+    # if current_user.is_anonymous:
+    #     print("anonymous")
     # if current_user.is_authenticated:
     #     print('current user')
     #     print(current_user.first_name)
@@ -79,6 +81,7 @@ def logout():
     g.current_user = None
     if json_response_needed():
         return '', 200
+    logout()
     return redirect(url_for('main.index'))
 
 
@@ -103,7 +106,7 @@ def register():
         u.set_password(request.get_json()['password'])
         u.get_token(3600*24*10)
         u.save()
-        send_email()
+        send_email('Successfully Registered', current_app.config['ADMIN'][0], u.email, 'Congrats')
         response = jsonify(u.to_dict())
         response.status_code = 201
         return response
@@ -180,7 +183,6 @@ def user_sitter():
 @main_bp.route('/update_profile/', methods=['POST', 'GET'])
 @token_auth.login_required
 def update_profile():
-
     profile_data = request.get_json()['profile_data']
     birthdate = profile_data['birthdate']
     gender = profile_data['gender']
@@ -197,3 +199,20 @@ def update_profile():
     u.save()
 
     return jsonify(u.to_dict(include_email=True))
+
+
+@main_bp.route('/')
+@token_auth.login_required
+def view_requests():
+    is_sitter = request.get_json()['is_sitter']
+    user = g.current_user
+    if is_sitter:
+        user.last_time_view_requests = datetime.utcnow()
+        appmts = get_many(AppointmentRequest, 'request_to', ObjectId(user.pk))
+    else:
+        appmts = get_many(AppointmentRequest, 'created_by', ObjectId(user.pk))
+    appmts = appmts.order_by({'timestamp': pymongo.DESCENDING})
+    appointment_requests = [appmt.to_dict() for appmt in appmts]
+    response = jsonify(appointment_requests)
+    response.status_code = 200
+    return response
