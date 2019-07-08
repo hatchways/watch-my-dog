@@ -8,9 +8,9 @@ import dogPaw from "../../static/images/dog-paw.png";
 import Avatar from "@material-ui/core/Avatar";
 
 const styles = theme => ({
-  root: {
-    flexGrow: 1
-  },
+  // root: {
+  //   flexGrow: 1
+  // },
   navbar: {
     background: "white",
     color: theme.secondary
@@ -45,6 +45,10 @@ const styles = theme => ({
   },
   link: {
     color: theme.secondary,
+    textDecoration: "none"
+  },
+  notification_link:{
+    color: "inherit",
     textDecoration: "none"
   },
   avatar: {
@@ -98,13 +102,14 @@ export default withStyles(styles)(
         navContent.push(
           <Fragment key="77">
             <Button
-              component={Link}
               to="/userlogin"
               size="medium"
               variant="outlined"
               className={`${classes.button} + ${classes.login}`}
             >
-              Messages
+              <Link to="/notifications" className={classes.notification_link}>
+                Notifications
+              </Link>
             </Button>
             <IconButton component={Link} to="/profile" size="medium">
               {" "}
@@ -118,9 +123,8 @@ export default withStyles(styles)(
         );
       }
       return (
-        <div className={classes.root}>
+        // <div className={classes.root}>
           <AppBar
-            position="fixed"
             className={
               history.location.pathname === "/"
                 ? classes.transparentNav
@@ -161,7 +165,7 @@ export default withStyles(styles)(
               {navContent}
             </Toolbar>
           </AppBar>
-        </div>
+        /* </div> */
       );
     }
   }

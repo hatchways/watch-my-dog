@@ -22,6 +22,13 @@ def get_one(Collection, fieldname, fieldvalue):
         one = None
     return one
 
+def get_many(Collection, fieldname, fieldvalue):
+   try:
+       many = list(Collection.objects.raw({fieldname: fieldvalue}))
+   except Collection.DoesNotExist:
+       print('object not found')
+       many = None
+   return many
 
 def get_one_or_404(Collection, fieldname, fieldvalue):
     try:
@@ -134,9 +141,9 @@ class Sitter(UserMixin, MongoModel):
     last_name = fields.CharField()
     gender = fields.IntegerField()
     birthdate = fields.CharField()
-    about_me = fields.CharField()
-    charge = fields.FloatField()
-    location = fields.CharField()
+    about_me = fields.CharField(blank=True)
+    charge = fields.FloatField(blank=True)
+    location = fields.CharField(blank=True)
     profile_image = fields.CharField(default=default_url, blank=True)
 
     class Meta:
@@ -177,7 +184,7 @@ class Sitter(UserMixin, MongoModel):
         self.token_expiration = datetime.now() - timedelta(seconds=1)
 
     # #api
-    def to_dict(self, include_email=True):
+    def to_dict(self, include_email=True, include_token=True):
         data = {
             'first_name': self.first_name,
             'last_name': self.last_name,
@@ -191,7 +198,7 @@ class Sitter(UserMixin, MongoModel):
         }
         if include_email:
             data['email'] = self.email
-        if self.token:
+        if self.token and include_token:
             data['token'] = self.token
         return data
 
