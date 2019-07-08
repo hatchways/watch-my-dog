@@ -38,6 +38,18 @@ def get_one_or_404(Collection, fieldname, fieldvalue):
     return one
 
 
+def get_many(Collection, fieldnames, fieldvalues):
+   try:
+       filter = {}
+       for i in range(len(fieldnames)):
+           filter = filter.update({fieldnames[i]: fieldvalues[i]})
+       many = [Collection.objects.raw(filter)]
+   except Collection.DoesNotExist:
+       print('object not found')
+       many = None
+   return many
+
+
 class User(UserMixin, MongoModel):
     password_hash = fields.CharField()
     email = fields.EmailField()
@@ -146,6 +158,9 @@ class Sitter(UserMixin, MongoModel):
     location = fields.CharField(blank=True)
     profile_image = fields.CharField(default=default_url, blank=True)
 
+    # notification
+    last_time_view_requests = fields.DateTimeField()
+
     class Meta:
         write_concern = WriteConcern(j=True)
         connection_alias = 'dog-sitting'
@@ -221,6 +236,11 @@ class Sitter(UserMixin, MongoModel):
         if user is None or user.token_expiration < datetime.now():
             return None
         return user
+
+    def new_appmt_rqs(self):
+        last_time_viewed = self.last_time_view_requests or datetime(2010, 8, 10)
+        return get_many(AppointmentRequest, ['request_to', 'timestamp'], [ObjectId(self.pk), {'$gte': last_time_viewed}]).\
+            count()
 
 
 class Owner(UserMixin, MongoModel):
@@ -315,11 +335,10 @@ class Owner(UserMixin, MongoModel):
         if user is None or user.token_expiration < datetime.now():
             return None
         return user
-
-
+        
 class Notification(MongoModel):
-    # sent_to = fields.ReferenceField("Sitter, Owner")
-    # type_of_notification = fields.IntegerField()
+    sent_to = fields.ReferenceField("Sitter, Owner")
+    type_of_notification = fields.IntegerField()
     # is_read = fields.BooleanField()
     pass
 
@@ -330,13 +349,46 @@ class AppointmentRequest(MongoModel):
     status = fields.IntegerField()
     timestamp = fields.DateTimeField()
     time_reserved = fields.DateTimeField()
-    cancellable = fields.BooleanField()
+    is_past = fields.BooleanField()
+
+    # #api
+    def to_dict(self):
+        data = {
+            'created_by': self.created_by,
+            'request_to': self.request_to,
+            'status': self.status,
+            'timestamp': self.timestamp,
+            'time_reserved': self.time_reserved,
+            'is_past': self.is_past
+        }
+
+    def rearrange(self, new_time=None):
+        self.status = 0 # pending
+        if new_time:
+            self.time_reserved = new_time
 
     def confirm(self):
-        pass
+        if self.status:
+            self.status = 0
+        self.status = 1
 
     def reject(self):
-        pass
+        if self.status:
+            self.status = 0
+        self.status = 2
+
+    def is_cancellable(self):
+        return self.time_reserved > datetime.utcnow()
+
+    def cancel(self):
+        # from user's side
+        if self.is_cancellable():
+            self.delete()
+            return True
+        return False
+
+    def finish(self):
+        self.is_past = True
 
     def create_notification(self):
         pass
@@ -344,51 +396,8 @@ class AppointmentRequest(MongoModel):
     def create_reminder(self):
         pass
 
-    def rearrange(self):
-        pass
-
-    def cancel(self):
-        pass
-
 
 @user_loaded_from_request.connect
 def user_loaded_from_request():
     g.login_via_request = True
-
-
-# @login.request_loader
-# def load_user_from_request(request):
-#     if request:
-#         print('request', request)
-#         for arg in request.args:
-#             print('arg', arg)
-#         # with token
-#         json = request.get_json()
-#         if json:
-#             is_sitter = json['is_sitter']
-#             collection = Sitter if is_sitter else Owner
-
-#             token = json['token']
-#             if token:
-#                 if is_sitter:
-#                     print('search in sitter')
-#                 print('search in owner')
-#                 user = collection.check_token(token)
-#                 print('u_id', ObjectId(user.pk))
-#                 return user
-#             # with credentials
-#             email = json['email']
-#             if email:
-#                 user = get_one(collection, 'email', email)
-#                 return user
-#     return None
-
-
-@login.user_loader
-def load_user(u_id):
-    print('u_id', ObjectId(u_id))
-    if session['is_sitter']:
-        print('search in sitter')
-        return get_one(Sitter, '_id', ObjectId(u_id))
-    print('search in owner')
-    return get_one(Owner, '_id', ObjectId(u_id))
+    
