@@ -2,7 +2,6 @@ import React from "react";
 import { Grid, Card, Typography,TextField, CardContent, CardActions, Avatar, Divider } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import LocationIcon from "@material-ui/icons/LocationOn";
-import Rating from 'material-ui-rating';
 
 
 // import SvgIcon from '@material-ui/core/SvgIcon';
@@ -132,15 +131,10 @@ export default function Search_grid(props) {
                       justify="center"
                       alignItems="center"
                     >
-                      <Rating
-                        value={Math.floor(Math.random() * (6 - 4)) + 4}
-                        max={5}
-                        readOnly
-                        // onChange={(value) => console.log(`Rated with value ${value}`)}
-                      />
                     </Grid>
-                    <Typography variant="body1" color="textPrimary" component="p" align="center">
-                      {value.about_me.split('. ')[0]}
+                    <Typography variant="body1" color="textPrimary" noWrap component="p" align="center">
+                      {/* {value.about_me.split(' ').slice(0, 10).join(' ') } */}
+                      {value.about_me}
                     </Typography>
                   </CardContent>
                   <Divider />
@@ -160,7 +154,7 @@ export default function Search_grid(props) {
                       </Grid>
                       <Grid item xs={6}>
                         <Typography gutterBottom variant="subtitle1" align="right">
-                          <strong>${value.rate}/hr</strong>
+                          <strong>${value.rate}/day</strong>
                         </Typography>
                       </Grid>
                     </Grid>

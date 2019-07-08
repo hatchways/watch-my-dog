@@ -13,7 +13,6 @@ from pymongo.write_concern import WriteConcern
 from bson.objectid import ObjectId
 
 
-
 def get_one(Collection, fieldname, fieldvalue):
     try:
         one = Collection.objects.get({fieldname: fieldvalue})
@@ -22,17 +21,19 @@ def get_one(Collection, fieldname, fieldvalue):
         one = None
     return one
 
+
 def get_many(Collection, fieldname, fieldvalue):
-   try:
-       many = list(Collection.objects.raw({fieldname: fieldvalue}))
-   except Collection.DoesNotExist:
-       print('object not found')
-       many = None
-   return many
+    try:
+        many = list(Collection.objects.raw({fieldname: fieldvalue}))
+    except Collection.DoesNotExist:
+        print('object not found')
+        many = None
+    return many
+
 
 def get_one_or_404(Collection, fieldname, fieldvalue):
     try:
-        one = Collection.objects.get({fieldname:fieldvalue})
+        one = Collection.objects.get({fieldname: fieldvalue})
     except Collection.DoesNotExist:
         abort(404)
     return one
@@ -64,17 +65,17 @@ class User(UserMixin, MongoModel):
     def get_id(self):
         return str(self.pk)
 
-    #token
+    # token
     def get_token(self, expires_in=3600):
         now = datetime.now()
         if self.token and self.token_expiration > now + timedelta(seconds=3600):
             return self.token
         try:
             payload = {
-                        'token': self.get_id(),
-                        'exp': time() + expires_in,
-                        'time_generated': time()
-                       }
+                'token': self.get_id(),
+                'exp': time() + expires_in,
+                'time_generated': time()
+            }
         except Exception as e:
             return e
         self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
@@ -91,7 +92,8 @@ class User(UserMixin, MongoModel):
     @staticmethod
     def check_token(token):
         try:
-            payload = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+            payload = jwt.decode(
+                token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
             user_id = payload['token']
         except Exception as e:
             return e
@@ -159,17 +161,17 @@ class Sitter(UserMixin, MongoModel):
     def get_id(self):
         return str(self.pk)
 
-    #token
+    # token
     def get_token(self, expires_in=3600):
         now = datetime.now()
         if self.token and self.token_expiration > now + timedelta(seconds=3600):
             return self.token
         try:
             payload = {
-                        'token': self.get_id(),
-                        'exp': time() + expires_in,
-                        'time_generated': time()
-                       }
+                'token': self.get_id(),
+                'exp': time() + expires_in,
+                'time_generated': time()
+            }
         except Exception as e:
             return e
         self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
@@ -213,7 +215,8 @@ class Sitter(UserMixin, MongoModel):
     @staticmethod
     def check_token(token):
         try:
-            payload = jwt.decode(token, current_app.config["SECRET_KEY"], algorithm='HS256')
+            payload = jwt.decode(
+                token, current_app.config["SECRET_KEY"], algorithm='HS256')
             user_id = payload['token']
         except Exception as e:
             return e
@@ -239,7 +242,6 @@ class Owner(UserMixin, MongoModel):
     location = fields.CharField()
     profile_image = fields.CharField(default=default_url, blank=True)
 
-
     class Meta:
         write_concern = WriteConcern(j=True)
         connection_alias = 'dog-sitting'
@@ -253,20 +255,20 @@ class Owner(UserMixin, MongoModel):
     def get_id(self):
         return str(self.pk)
 
-    #token
+    # token
     def get_token(self, expires_in=3600):
         now = datetime.now()
         if self.token and self.token_expiration > now + timedelta(seconds=3600):
             return self.token
         try:
             payload = {
-                        'token': self.get_id(),
-                        'exp': time() + expires_in,
-                        'time_generated': time()
-                       }
+                'token': self.get_id(),
+                'exp': time() + expires_in,
+                'time_generated': time()
+            }
         except Exception as e:
             return e
-        print("inside Owner", self.get_id())        
+        print("inside Owner", self.get_id())
         self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
         # self.update({"$set": {"token": token }})
@@ -295,7 +297,7 @@ class Owner(UserMixin, MongoModel):
         if self.token:
             data['token'] = self.token
         return data
-                               
+
     def from_dict(self, data, new_user=False):
         for field in ['first_name', 'last_name', 'email', 'date_registered',
                       'gender', 'about_me']:
@@ -307,7 +309,8 @@ class Owner(UserMixin, MongoModel):
     @staticmethod
     def check_token(token):
         try:
-            payload = jwt.decode(token, current_app.config["SECRET_KEY"], algorithm='HS256')
+            payload = jwt.decode(
+                token, current_app.config["SECRET_KEY"], algorithm='HS256')
             user_id = payload['token']
         except Exception as e:
             return e

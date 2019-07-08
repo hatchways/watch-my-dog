@@ -1,14 +1,14 @@
-import React from "react";
+import React, { Component } from "react";
 import { Grid, Paper } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-// import Dates from '../Utilities/Dates';
+import { DateRangePicker} from 'react-dates';
 
 import dogImg from "../../static/images/dog-mainpage.png";
 
-const useStyles = makeStyles(theme => ({
+const styles = theme => ({
   root: {
     flexGrow: 1
   },
@@ -53,71 +53,84 @@ const useStyles = makeStyles(theme => ({
     padding: "auto 5%",
     marginTop: "2%",
     color: "#efefef"
-  }
-}));
+  },
+});
 
-export default function Grids(props) {
-  const classes = useStyles();
-  let location = '';
-  const search_sitters = props.search_sitters;
-  const handleChange = (e) =>{
+class Grids extends Component{
+  constructor(){
+    super();
+    this.state={
+      startDate: null,
+      endDate: null,
+      focusedInput: null,
+      location: ''
+    }
+  }
+  handleChange = (e) =>{
     const {value} = e.target;
-    location = value
+    this.setState({
+      location :value
+    })
+  };
+  render(){
+    const  {classes, search_sitters} = this.props;
+    return (
+      <div>
+        <Grid container spacing={0}>
+          <Grid item xs>
+            <Paper className={classes.maingrid}>
+              <Grid
+                container
+                className={classes.subgrid}
+                direction="column"
+                justify="space-around"
+                alignItems="center"
+              >
+                <Grid item xs className={classes.titlewrap}>
+                  <Typography variant="h3" className={classes.title}>
+                    <strong>Find the care your dog deserves.</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs className={classes.searchbox}>
+                  <form
+                    className={classes.container}
+                    noValidate
+                    autoComplete="off"
+                  >
+                    <TextField
+                      id="standard-name"
+                      label="Where"
+                      className={classes.textField}
+                      margin="normal"
+                      variant="outlined"
+                      onChange={this.handleChange}
+                    />
+                    <br />
+                    <DateRangePicker
+                      startDate={this.state.startDate} // momentPropTypes.momentObj or null,
+                      startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
+                      endDate={this.state.endDate} // momentPropTypes.momentObj or null,
+                      endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
+                      onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
+                      focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+                      onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
+                    />
+                    <br />
+                    <Button size="large" className={classes.find} spacing={2} onClick={()=>{search_sitters(this.state.location, this.state.startDate, this.state.endDate)}}>
+                      Find my Dog Sitter
+                    </Button>
+                  </form>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Grid>
+          <Grid item xs>
+            <Paper className={`${classes.maingrid} ${classes.mainImg}`}></Paper>
+          </Grid>
+        </Grid>
+      </div>
+    );
   }
-  return (
-    <div>
-      <Grid container spacing={0}>
-        <Grid item xs>
-          <Paper className={classes.maingrid}>
-            <Grid
-              container
-              className={classes.subgrid}
-              direction="column"
-              justify="space-around"
-              alignItems="center"
-            >
-              <Grid item xs className={classes.titlewrap}>
-                <Typography variant="h3" className={classes.title}>
-                  <strong>Find the care your dog deserves.</strong>
-                </Typography>
-              </Grid>
-              <Grid item xs className={classes.searchbox}>
-                <form
-                  className={classes.container}
-                  noValidate
-                  autoComplete="off"
-                >
-                  <TextField
-                    id="standard-name"
-                    label="Where"
-                    className={classes.textField}
-                    margin="normal"
-                    variant="outlined"
-                    onChange={handleChange}
-                  />
-                  <br />
-                  {/* <Dates /> */}
-                  <TextField
-                    id="standard-name"
-                    label="Date"
-                    className={classes.textField}
-                    margin="normal"
-                    variant="outlined"
-
-                  />
-                  <br />
-                  <Button size="large" className={classes.find} spacing={2} onClick={()=>{search_sitters(location)}}>
-                    Find my Dog Sitter
-                  </Button>
-                </form>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
-        <Grid item xs>
-          <Paper className={`${classes.maingrid} ${classes.mainImg}`}></Paper>
-        </Grid>
-      </Grid>
-    </div>
-  );
 }
+
+export default withStyles(styles)(Grids)

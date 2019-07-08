@@ -8,9 +8,9 @@ from app.main.forms import LoginForm, RegisterForm
 from app.models import get_one, Owner, Sitter, get_one_or_404, get_many
 from app.errors.handlers import json_response_needed, error_response
 from app.api.auth import token_auth
-import boto3, botocore
+import boto3
+import botocore
 from werkzeug.utils import secure_filename
-# _users = mongo.db.users
 
 
 @main_bp.route('/')
@@ -50,16 +50,13 @@ def login():
         return error_response(404)
 
 
-
-
 @main_bp.route("/logout")
 @login_required
 def logout():
     logout_user()
     if json_response_needed():
         return '', 200
-    return redirect(url_for('main.index'))
-
+    # return redirect(url_for('main.index'))
 
 
 @main_bp.route('/register', methods=["GET", "POST"])
@@ -92,13 +89,15 @@ def register():
 
 @main_bp.route('/search_sitter', methods=['GET', 'POST'])
 # @token_auth.login_required
-    # user = g.current_user
+# user = g.current_user
 def get_all_sitters():
-    location = request.get_json()['location']
-    if location :
+    location = request.get_json()['location'].capitalize()
+    print(request.get_json()['start_date'])
+    if location:
         collection = Sitter
         many = get_many(collection, 'location', location)
-        response = jsonify({"users": [user.to_dict(include_token=False) for user in many]})
+        response = jsonify(
+            {"users": [user.to_dict(include_token=False) for user in many]})
         return response, 200
     return error_response(404)
 
@@ -121,15 +120,12 @@ def user_sitter():
     return error_response(404)
 
 
-
-
-
 @main_bp.route('/upload_profile_image', methods=['GET', 'POST'])
 @token_auth.login_required
 def upload_file():
     file = request.files['file']
     file.filename = secure_filename(file.filename)
-    output   	  = upload_file_to_s3(file, current_app.config["S3_BUCKET"])
+    output = upload_file_to_s3(file, current_app.config["S3_BUCKET"])
     user = g.current_user
     user.profile_image = str(output)
     user.save()
@@ -138,7 +134,7 @@ def upload_file():
 
 def upload_file_to_s3(file, bucket_name, acl="public-read"):
     s3 = boto3.client(
-        "s3",                               
+        "s3",
         region_name='ca-central-1',
         aws_access_key_id=current_app.config["S3_KEY"],
         aws_secret_access_key=current_app.config["S3_SECRET"]
@@ -165,7 +161,7 @@ def upload_file_to_s3(file, bucket_name, acl="public-read"):
 @token_auth.login_required
 def d_file():
     file_name = request.get_json()['file_name']
-    print("length",file_name)
+    print("length", file_name)
     if file_name:
         s3 = boto3.client(
             "s3",
@@ -173,8 +169,9 @@ def d_file():
             aws_access_key_id=current_app.config["S3_KEY"],
             aws_secret_access_key=current_app.config["S3_SECRET"]
         )
-        output = s3.delete_object(Bucket=current_app.config["S3_BUCKET"], Key=file_name)
-        
+        output = s3.delete_object(
+            Bucket=current_app.config["S3_BUCKET"], Key=file_name)
+
     token = request.get_json()['token']
     collection = Sitter if Sitter.check_token(token) else Owner
     u = collection.check_token(token)

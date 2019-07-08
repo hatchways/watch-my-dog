@@ -146,7 +146,6 @@ class Homepage extends Component {
         })
         .catch(error => {
           console.log(error.message);
-          // console.log("user not found , wrong token");
           this.setState({
             isAuthenticated: false,
             token: null,
@@ -173,7 +172,6 @@ class Homepage extends Component {
 
   componentDidMount() {
     this.verify();
-    console.log(!!this.state.search_results.length)
   }
   submitProfile = () => {
     const token_type = !!getFromStorage("dog_sitter")
@@ -279,12 +277,10 @@ class Homepage extends Component {
   };
 
   handleSignIn = (e, sitter) => {
-    e.preventDefault();
     const lStorageName = sitter ? "dog_sitter" : "dog_owner";
     this.setState({
       isLoading: true
     });
-    console.log("password for login", this.state.password)
     axios
       .post("/login", {
         email: this.state.email,
@@ -292,8 +288,9 @@ class Homepage extends Component {
         is_sitter: sitter,
         remember: true
       })
-      .then(res => {
-        return res.data;
+      .then(result => {
+        console.log(result);
+        return result.data;
       })
       .then(result => {
         this.setState({
@@ -309,7 +306,10 @@ class Homepage extends Component {
           token: result.token,
           isAuthenticated: true,
           is_sitter: sitter,
-          isLoading: false
+          isLoading: false,
+          profile_data:{
+            profile_image: result.profile_image
+          }
         });
         return result;
       })
@@ -330,7 +330,7 @@ class Homepage extends Component {
   };
 
   handleLogOut = e => {
-    const sitter = getFromStorage("dog_sitter") ? true : false;
+    const sitter = getFromStorage("dog_sitter") || false;
     e.preventDefault();
     this.setState({
       isLoading: true
@@ -338,17 +338,25 @@ class Homepage extends Component {
     const lStorageName = sitter ? "dog_sitter" : "dog_owner";
     const token = getFromStorage(lStorageName);
     axios
-      .get("/logout", { token })
+      .get("/logout", { token, is_sitter : sitter })
       .then(res => {
         this.setState({
           token: "",
           isAuthenticated: false,
           is_sitter: false,
-          isLoading: false
+          isLoading: false,
+          profile_data: {
+            birthdate: "Fri Jan 01 1999 21:11:54 GMT-0500 (Eastern Standard Time)",
+            gender: 0,
+            about_me: "",
+            location: "",
+            rate: "",
+            profile_image:""
+          }
         });
         return res;
       })
-      .then(res => {
+      .then(() => {
         if (!this.state.isAuthenticated) {
           this.props.history.push("/");
         }
@@ -358,7 +366,15 @@ class Homepage extends Component {
           token: "",
           isAuthenticated: false,
           is_sitter: false,
-          isLoading: false
+          isLoading: false,
+          profile_data: {
+            birthdate: "Fri Jan 01 1999 21:11:54 GMT-0500 (Eastern Standard Time)",
+            gender: 0,
+            about_me: "",
+            location: "",
+            rate: "",
+            profile_image:""
+          }
         });
       });
     removeFromStorage(lStorageName);
@@ -468,20 +484,32 @@ class Homepage extends Component {
         });
     }
   };
-  search_sitters = (location)=>{
-      axios.post("/search_sitter", {location})
+  search_sitters = (location, start_date, end_date)=>{
+    if(location && start_date && end_date){
+      axios.post("/search_sitter", {location, start_date, end_date})
         .then(res=>{
-          this.setState({
-            search_results: res.data.users
-          })
+            console.log(res.data.users.length)
+            if(res.data.users.length > 0){
+            this.setState({
+              search_results: res.data.users
+            })
+          }
+          else{
+            throw Error("No Sitters Found. Try different dates or Location")
+          }
         })
         .then(()=>{
           this.props.history.push(`/search/location?=${location}`);
         })
         .catch(error=>{
           console.log(error);
+          alert(error);
         })
-  }
+    }
+    else{
+      alert("Please enter location & select dates.");
+    }
+}
   render() {
     return (
       <React.Fragment>
