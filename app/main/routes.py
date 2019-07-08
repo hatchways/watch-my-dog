@@ -1,15 +1,19 @@
-from flask import current_app, render_template, redirect, url_for, jsonify, session, request, abort, g
+from flask import render_template, redirect, url_for, jsonify, current_app, request, abort, g
 from datetime import datetime
 
-from flask_login import current_user, login_user, logout_user, login_required
 
 from . import main_bp
-from app.main.forms import LoginForm, RegisterForm
-from app.models import get_one, Owner, Sitter, get_one_or_404, get_many
+from app.main.forms import RegisterForm
+from app.models import get_one, Owner, Sitter, get_one_or_404, get_many, Notification, AppointmentRequest
 from app.errors.handlers import json_response_needed, error_response
 from app.api.auth import token_auth
-import boto3
-import botocore
+# email
+from app.email import send_email
+# objectID search
+from bson.objectid import ObjectId
+import pymongo
+# file upload
+import boto3, botocore
 from werkzeug.utils import secure_filename
 
 
@@ -30,20 +34,21 @@ def index():
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    title = "log in as a dog sitter"
     if json_response_needed():
         # parse request
         is_sitter = request.get_json()['is_sitter']
         collection = Sitter if is_sitter else Owner
+
         email = request.get_json()['email']
         password = request.get_json()['password']
+        user = None
+
         if email:
             user = get_one(collection, 'email', email)
 
         if user:
             if not user.check_password(password):
                 abort(401)
-            login_user(user)
             response = jsonify(user.to_dict())
             response.status_code = 200
             return response
@@ -51,13 +56,12 @@ def login():
 
 
 @main_bp.route("/logout")
-@login_required
+@token_auth.login_required
 def logout():
-    logout_user()
+    g.current_user.revoke_token()
+    g.current_user = None
     if json_response_needed():
         return '', 200
-    # return redirect(url_for('main.index'))
-
 
 @main_bp.route('/register', methods=["GET", "POST"])
 def register():
@@ -82,14 +86,13 @@ def register():
         u.save()
         u.get_token(3600*24*10)
         u.save()
+        send_email('Successfully Registered', current_app.config['ADMIN'][0], u.email, 'Congrats')
         response = jsonify(u.to_dict())
         response.status_code = 201
         return response
 
 
 @main_bp.route('/search_sitter', methods=['GET', 'POST'])
-# @token_auth.login_required
-# user = g.current_user
 def get_all_sitters():
     location = request.get_json()['location'].capitalize()
     print(request.get_json()['start_date'])
@@ -118,6 +121,24 @@ def user_sitter():
     if user:
         return jsonify(user.to_dict())
     return error_response(404)
+
+
+@main_bp.route('/requests')
+@token_auth.login_required
+def view_requests():
+    is_sitter = request.get_json()['is_sitter']
+    user = g.current_user
+    if is_sitter:
+        user.last_time_view_requests = datetime.utcnow()
+        appmts = get_many(AppointmentRequest, 'request_to', ObjectId(user.pk))
+    else:
+        appmts = get_many(AppointmentRequest, 'created_by', ObjectId(user.pk))
+    appmts = appmts.order_by({'timestamp': pymongo.DESCENDING})
+    appointment_requests = [appmt.to_dict() for appmt in appmts]
+    response = jsonify(appointment_requests)
+    response.status_code = 200
+    return response
+
 
 
 @main_bp.route('/upload_profile_image', methods=['GET', 'POST'])
@@ -169,12 +190,9 @@ def d_file():
             aws_access_key_id=current_app.config["S3_KEY"],
             aws_secret_access_key=current_app.config["S3_SECRET"]
         )
-        output = s3.delete_object(
-            Bucket=current_app.config["S3_BUCKET"], Key=file_name)
-
-    token = request.get_json()['token']
-    collection = Sitter if Sitter.check_token(token) else Owner
-    u = collection.check_token(token)
+        output = s3.delete_object(Bucket=current_app.config["S3_BUCKET"], Key=file_name)
+        
+    u = g.current_user
     u.profile_image = None
     u.save()
     return jsonify(u.to_dict(include_email=True))
