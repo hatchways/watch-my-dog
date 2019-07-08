@@ -1,16 +1,16 @@
 import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
-import { AppBar, Toolbar } from "@material-ui/core";
+import { AppBar, Toolbar, IconButton } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import dogPaw from "../../static/images/dog-paw.png";
 import Avatar from "@material-ui/core/Avatar";
 
 const styles = theme => ({
-  root: {
-    flexGrow: 1
-  },
+  // root: {
+  //   flexGrow: 1
+  // },
   navbar: {
     background: "white",
     color: theme.secondary
@@ -47,9 +47,16 @@ const styles = theme => ({
     color: theme.secondary,
     textDecoration: "none"
   },
+  notification_link:{
+    color: "inherit",
+    textDecoration: "none"
+  },
   avatar: {
     margin: theme.spacing(1),
     backgroundColor: "white"
+  },
+  logo_avatar:{
+    padding: theme.spacing(1),
   }
 });
 
@@ -60,7 +67,13 @@ export default withStyles(styles)(
       this.props.handleLogOut(e);
     };
     render() {
-      const { classes, isAuthenticated, history, is_sitter } = this.props;
+      const {
+        classes,
+        isAuthenticated,
+        history,
+        is_sitter,
+        profile_data
+      } = this.props;
       // creating a conditional JSX to render based on whether the user is logged in or not.
       const navContent = [];
       if (!isAuthenticated) {
@@ -89,29 +102,29 @@ export default withStyles(styles)(
         navContent.push(
           <Fragment key="77">
             <Button
-              component={Link}
               to="/userlogin"
               size="medium"
               variant="outlined"
               className={`${classes.button} + ${classes.login}`}
             >
-              Messages
+              <Link to="/notifications" className={classes.notification_link}>
+                Notifications
+              </Link>
             </Button>
-            <Button
-              component={Link}
-              to="/profile"
-              size="medium"
-              className={`${classes.button} + ${classes.signup}`}
-            >
-              Profile
-            </Button>
+            <IconButton component={Link} to="/profile" size="medium">
+              {" "}
+              <Avatar
+                alt="Remy Sharp"
+                src={profile_data.profile_image}
+                className={classes.avatar}
+              />
+            </IconButton>
           </Fragment>
         );
       }
       return (
-        <div className={classes.root}>
+        // <div className={classes.root}>
           <AppBar
-            position="fixed"
             className={
               history.location.pathname === "/"
                 ? classes.transparentNav
@@ -119,7 +132,7 @@ export default withStyles(styles)(
             }
           >
             <Toolbar>
-              <Avatar className={classes.avatar} src={dogPaw} />
+              <Avatar className={`${classes.avatar} + ${classes.logo_avatar}`} src={dogPaw} />
               <Typography variant="h5" className={classes.title}>
                 <Link to="/" className={classes.link}>
                   Lovingsitter
@@ -152,7 +165,7 @@ export default withStyles(styles)(
               {navContent}
             </Toolbar>
           </AppBar>
-        </div>
+        /* </div> */
       );
     }
   }

@@ -107,3 +107,7 @@ ENV/
 *.sqlite
 
 .idea/
+./client/src/components/Utilities/keys.js
+.vscode/*
+config.py
+run.txt

@@ -23,20 +23,20 @@ def update_profile():
     gender = profile_data['gender']
     about_me = profile_data['about_me']
     location = profile_data['location']
-    charge = profile_data['rate']
+    if 'rate' in profile_data:
+        charge = profile_data['rate']
+        u.charge = charge
 
     u = g.current_user
     u.birthdate = birthdate
     u.gender = gender
     u.about_me = about_me
     u.location = location
-    u.charge = charge
     u.save()
 
     return jsonify(u.to_dict(include_email=True))
 
-
-@api_bp.route('/verify/')
+@api_bp.route('/verify' , methods=["GET", "POST"])
 @token_auth.login_required
 def verify():
     is_sitter = request.get_json()['is_sitter']
@@ -46,12 +46,3 @@ def verify():
     if not user:
         return error_response(401)
     return jsonify(user.to_dict())
-
-
-@api_bp.route('/upload_image/', methods=['POST', 'GET'])
-@token_auth.login_required
-def upload_image():
-    if request.method == "POST":
-        f = request.files.get('file')
-        f.save(os.path.join('path', f.filename))
-    return jsonify(f)

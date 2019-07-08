@@ -5,23 +5,24 @@ import { withStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import DateFnsUtils from "@date-io/date-fns";
 import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
+
 const genderselect = [
   {
-    value: "Male",
+    value: 1,
     label: "Male"
   },
   {
-    value: "Female",
+    value: 0,
     label: "Female"
   },
   {
-    value: "Other",
+    value: 2,
     label: "Other"
   }
 ];
 
 const styles = theme => ({
-  about: {
+  about_me: {
     lineHeight: "2rem",
     textAlign: "justify"
   },
@@ -47,7 +48,7 @@ class EditProfile extends Component {
     this.props.submitProfile(e);
   };
   render() {
-    const { classes, profile_data } = this.props;
+    const { classes, profile_data, is_sitter } = this.props;
     return (
       <div>
         <Grid container alignItems="center" justify="center" spacing={5}>
@@ -197,12 +198,12 @@ class EditProfile extends Component {
             <Grid item xs={9}>
               <TextField
                 className={classes.textfield}
-                defaultValue={profile_data.about}
+                defaultValue={profile_data.about_me}
                 id="multiline-static"
                 fullWidth
                 InputProps={{
                   classes: {
-                    input: classes.about
+                    input: classes.about_me
                   }
                 }}
                 InputLabelProps={{
@@ -210,12 +211,13 @@ class EditProfile extends Component {
                 }}
                 multiline
                 margin="normal"
-                name="about"
+                name="about_me"
                 onChange={this.handleTextChange}
                 variant="outlined"
               />
             </Grid>
           </Grid>
+          {(is_sitter)?
           <Grid container item xs={12} alignItems="center" spacing={4}>
             <Grid item xs={3}>
               <Typography component="h6" variant="button" align="right">
@@ -236,7 +238,9 @@ class EditProfile extends Component {
             <Typography component="h6" variant="h6" xs={3}>
               $
             </Typography>
-          </Grid>
+          </Grid>:
+           ""
+          }
         </Grid>
         <Grid container alignItems="center" justify="center" spacing={5}>
           <Grid item>
