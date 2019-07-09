@@ -13,7 +13,8 @@ from app.email import send_email
 from bson.objectid import ObjectId
 import pymongo
 # file upload
-import boto3, botocore
+import boto3
+import botocore
 from werkzeug.utils import secure_filename
 
 
@@ -63,6 +64,7 @@ def logout():
     if json_response_needed():
         return '', 200
 
+
 @main_bp.route('/register', methods=["GET", "POST"])
 def register():
     title = "Register an account"
@@ -86,7 +88,8 @@ def register():
         u.save()
         u.get_token(3600*24*10)
         u.save()
-        send_email('Successfully Registered', current_app.config['ADMIN'][0], u.email, 'Congrats')
+        send_email('Successfully Registered',
+                   current_app.config['ADMIN'][0], u.email, 'Congrats')
         response = jsonify(u.to_dict())
         response.status_code = 201
         return response
@@ -95,7 +98,7 @@ def register():
 @main_bp.route('/search_sitter', methods=['GET', 'POST'])
 def get_all_sitters():
     location = request.get_json()['location'].capitalize()
-    print(request.get_json()['start_date'])
+    print(request.get_json()['startDate'])
     if location:
         collection = Sitter
         many = get_many(collection, 'location', location)
@@ -138,7 +141,6 @@ def view_requests():
     response = jsonify(appointment_requests)
     response.status_code = 200
     return response
-
 
 
 @main_bp.route('/upload_profile_image', methods=['GET', 'POST'])
@@ -190,8 +192,9 @@ def d_file():
             aws_access_key_id=current_app.config["S3_KEY"],
             aws_secret_access_key=current_app.config["S3_SECRET"]
         )
-        output = s3.delete_object(Bucket=current_app.config["S3_BUCKET"], Key=file_name)
-        
+        output = s3.delete_object(
+            Bucket=current_app.config["S3_BUCKET"], Key=file_name)
+
     u = g.current_user
     u.profile_image = None
     u.save()

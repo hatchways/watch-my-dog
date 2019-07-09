@@ -2,6 +2,7 @@ import React from "react";
 import { Grid, Card, Typography,TextField, CardContent, CardActions, Avatar, Divider } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import LocationIcon from "@material-ui/icons/LocationOn";
+import { DateRangePicker} from 'react-dates';
 
 
 // import SvgIcon from '@material-ui/core/SvgIcon';
@@ -66,15 +67,19 @@ const useStyles = makeStyles(theme => ({
 
 export default function Search_grid(props) {
   const classes = useStyles();
-  let location = '';
-  const {search_sitters, users} = props;
+  const {search_sitters, users, startDate,
+    endDate,
+    focusedInput,
+    handleSearchChange} = props;
   const handleChange = (e) =>{
-    const {value} = e.target;
-    location = value
-  }
-  const onSubmit=(e) =>{
+      const {value} = e.target;
+      const location = value
+      props.handleSearchChange({location})
+  };
+  const onSubmit = (e) =>{
+    console.log("in submit")
     e.preventDefault();
-    search_sitters(location);
+    search_sitters();
   }
   return (
     <div className={classes.parent} >
@@ -101,6 +106,17 @@ export default function Search_grid(props) {
                         }}
                         onChange={handleChange}
               />
+              <br />
+                <DateRangePicker
+                        startDate={startDate} // momentPropTypes.momentObj or null,
+                        startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
+                        endDate={endDate} // momentPropTypes.momentObj or null,
+                        endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
+                        onDatesChange={({ startDate, endDate }) => handleSearchChange({ startDate, endDate })} // PropTypes.func.isRequired,
+                        focusedInput={focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+                        onFocusChange={focusedInput => handleSearchChange({ focusedInput })} // PropTypes.func.isRequired,
+                />
+              <br />
             </form>
             </Grid>
                         

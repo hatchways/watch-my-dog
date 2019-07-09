@@ -59,21 +59,17 @@ const styles = theme => ({
 class Grids extends Component{
   constructor(){
     super();
-    this.state={
-      startDate: null,
-      endDate: null,
-      focusedInput: null,
-      location: ''
-    }
   }
   handleChange = (e) =>{
     const {value} = e.target;
-    this.setState({
-      location :value
-    })
+    const location = value
+    this.props.handleSearchChange({location})
   };
   render(){
-    const  {classes, search_sitters} = this.props;
+    const  {classes, search_sitters, startDate,
+      endDate,
+      focusedInput,
+      handleSearchChange} = this.props;
     return (
       <div>
         <Grid container spacing={0}>
@@ -99,6 +95,7 @@ class Grids extends Component{
                   >
                     <TextField
                       id="standard-name"
+                      name="location"
                       label="Where"
                       className={classes.textField}
                       margin="normal"
@@ -107,16 +104,16 @@ class Grids extends Component{
                     />
                     <br />
                     <DateRangePicker
-                      startDate={this.state.startDate} // momentPropTypes.momentObj or null,
+                      startDate={startDate} // momentPropTypes.momentObj or null,
                       startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
-                      endDate={this.state.endDate} // momentPropTypes.momentObj or null,
+                      endDate={endDate} // momentPropTypes.momentObj or null,
                       endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
-                      onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
-                      focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
-                      onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
+                      onDatesChange={({ startDate, endDate }) => handleSearchChange({ startDate, endDate })} // PropTypes.func.isRequired,
+                      focusedInput={focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+                      onFocusChange={focusedInput => handleSearchChange({ focusedInput })} // PropTypes.func.isRequired,
                     />
                     <br />
-                    <Button size="large" className={classes.find} spacing={2} onClick={()=>{search_sitters(this.state.location, this.state.startDate, this.state.endDate)}}>
+                    <Button size="large" className={classes.find} spacing={2} onClick={()=>{search_sitters()}}>
                       Find my Dog Sitter
                     </Button>
                   </form>

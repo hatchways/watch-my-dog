@@ -54,6 +54,10 @@ class Homepage extends Component {
       email: null,
       password: null,
       token: null,
+      startDate: null,
+      endDate: null,
+      focusedInput: null,
+      location: null,
       formErrors: {
         firstName: "",
         lastName: "",
@@ -95,6 +99,14 @@ class Homepage extends Component {
         [e.target.name]: String([e.target.value])
       }
     });
+  };
+  handleSearchChange = (obj) =>{
+    const arr = Object.entries(obj);
+    arr.forEach(ele=>{
+      this.setState({
+        [ele[0]]: ele[1]
+      })
+    })
   };
   verify = () => {
     const token_type = !!getFromStorage("dog_sitter")
@@ -484,11 +496,12 @@ class Homepage extends Component {
         });
     }
   };
-  search_sitters = (location, start_date, end_date)=>{
-    if(location && start_date && end_date){
-      axios.post("/search_sitter", {location, start_date, end_date})
+  search_sitters = ()=>{
+    const {location, startDate, endDate} = this.state;
+    console.log(location, startDate, endDate)
+    if(location && startDate && endDate){
+      axios.post("/search_sitter", {location, startDate, endDate})
         .then(res=>{
-            console.log(res.data.users.length)
             if(res.data.users.length > 0){
             this.setState({
               search_results: res.data.users
@@ -526,6 +539,11 @@ class Homepage extends Component {
                 <Grids
                   {...props}
                   search_sitters={this.search_sitters}
+                  handleSearchChange = {this.handleSearchChange}
+                  startDate= {this.state.startDate}
+                  endDate = {this.state.endDate} 
+                  focusedInput = {this.state.focusedInput}
+                  location={this.state.location}
                 />
               );
              }}
@@ -535,7 +553,12 @@ class Homepage extends Component {
                 <Search_grid
                   {...props}
                   search_sitters={this.search_sitters}
+                  handleSearchChange = {this.handleSearchChange}
                   users = {this.state.search_results}
+                  startDate= {this.state.startDate}
+                  endDate = {this.state.endDate} 
+                  focusedInput = {this.state.focusedInput}
+                  location={this.state.location}
                 />
               );
              }}
