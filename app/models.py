@@ -1,7 +1,7 @@
 from app import login
 import os
 
-from flask import current_app, session, abort, g
+from flask import current_app, session, abort, g, json
 from flask_login import UserMixin, user_loaded_from_request
 from werkzeug.security import check_password_hash, generate_password_hash
 from time import time
@@ -43,7 +43,7 @@ def get_many(Collection, fieldnames, fieldvalues):
        filter = {}
        for i in range(len(fieldnames)):
            filter = filter.update({fieldnames[i]: fieldvalues[i]})
-       many = [Collection.objects.raw(filter)]
+       many = Collection.objects.raw(filter)
    except Collection.DoesNotExist:
        print('object not found')
        many = None
@@ -242,6 +242,23 @@ class Sitter(UserMixin, MongoModel):
         return get_many(AppointmentRequest, ['request_to', 'timestamp'], [ObjectId(self.pk), {'$gte': last_time_viewed}]).\
             count()
 
+    def create_rq_notification(self, user_collection, type_of_notification, data):
+        notifications = get_many(Notification, ['user_collection', 'sent_to', 'type_of_notification' ], \
+                                        ['Sitter', ObjectId(self.pk), 'new_request'])
+        for ntf in notifications:
+            ntf.delete()
+        n = Notification(
+                sent_to = ObjectId(self.pk),
+                user_collection = user_collection,
+                type_of_notification = type_of_notification,
+                payload_json = json.dumps(data),
+                timestamp = datetime.utcnow()
+        )
+        n.save()
+        return n
+
+
+
 
 class Owner(UserMixin, MongoModel):
     default_url = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
@@ -337,11 +354,14 @@ class Owner(UserMixin, MongoModel):
         return user
         
 class Notification(MongoModel):
-    sent_to = fields.ReferenceField("Sitter, Owner")
+    sent_to = fields.ReferenceField()
+    user_collection = fields.CharField()
     type_of_notification = fields.IntegerField()
-    # is_read = fields.BooleanField()
-    pass
+    payload_json = fields.CharField()
+    timestamp = fields.DateTimeField()
 
+    def get_data(self):
+        return json.loads(str(self.payload_json))
 
 class AppointmentRequest(MongoModel):
     created_by = fields.ReferenceField(Owner)
@@ -361,6 +381,7 @@ class AppointmentRequest(MongoModel):
             'time_reserved': self.time_reserved,
             'is_past': self.is_past
         }
+        return data
 
     def rearrange(self, new_time=None):
         self.status = 0 # pending
@@ -389,9 +410,6 @@ class AppointmentRequest(MongoModel):
 
     def finish(self):
         self.is_past = True
-
-    def create_notification(self):
-        pass
 
     def create_reminder(self):
         pass
