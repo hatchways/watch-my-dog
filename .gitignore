@@ -111,3 +111,4 @@ ENV/
 .vscode/*
 config.py
 run.txt
+/env3
