@@ -42,7 +42,7 @@ def get_many(Collection, fieldnames, fieldvalues):
    try:
        filter = {}
        for i in range(len(fieldnames)):
-           filter = filter.update({fieldnames[i]: fieldvalues[i]})
+           filter[fieldnames[i]] = fieldvalues[i]
        many = Collection.objects.raw(filter)
    except Collection.DoesNotExist:
        print('object not found')
@@ -354,7 +354,7 @@ class Owner(UserMixin, MongoModel):
         return user
         
 class Notification(MongoModel):
-    sent_to = fields.ReferenceField()
+    sent_to = fields.ObjectIdField()
     user_collection = fields.CharField()
     type_of_notification = fields.IntegerField()
     payload_json = fields.CharField()

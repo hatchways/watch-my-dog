@@ -7,13 +7,13 @@ from pymodm.connection import connect
 from flask import g
 from flask.sessions import SecureCookieSessionInterface
 from flask_login import LoginManager
-from flask_dropzone import Dropzone
 from flask_mail import Mail
+
+import stripe
 
 login = LoginManager()
 login.login_view = 'main.login'
 
-dropzone = Dropzone()
 mail = Mail()
 # pymodm mongodb
 connect("mongodb://localhost:27017/dog-sitting", alias="dog-sitting")
@@ -35,8 +35,9 @@ def create_app(config_class=Config):
     app.session_interface = CustomSecureCookieSessionInterface()
 
     login.init_app(app)
-    dropzone.init_app(app)
     mail.init_app(app)
+
+    stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
     from app.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')

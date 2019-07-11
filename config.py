@@ -13,3 +13,4 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['teamlowry2019@gmail.com']
+    STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")

@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, jsonify, current_app, request, abort, g
 from datetime import datetime
-
+import stripe
 
 from . import main_bp
 from app.main.forms import RegisterForm
@@ -90,7 +90,7 @@ def register():
         u.save()
         u.get_token(3600*24*10)
         u.save()
-        send_email('Successfully Registered', current_app.config['ADMIN'][0], u.email, 'Congrats')
+        send_email('Successfully Registered', current_app.config['ADMINS'][0], u.email, 'Congrats')
         response = jsonify(u.to_dict())
         response.status_code = 201
         return response
@@ -158,7 +158,7 @@ def make_appmt_request(user_id, time_reserved):
     appmt.save()
     user = get_one(Sitter, '_id', ObjectId(user_id))
     user.create_rq_notification('Sitter', 'new_request', 'you have '+ user.new_appmt_rqs() + ' new appointment requests')
-    send_email('you have '+ user.new_appmt_rqs() + ' new appointment requests', current_app.config['ADMIN'][0], user.email)
+    send_email('you have '+ user.new_appmt_rqs() + ' new appointment requests', current_app.config['ADMINS'][0], user.email)
     response = jsonify(appmt.to_dict())
     response.status_code = 200
     return response
@@ -233,3 +233,20 @@ def d_file():
     u.profile_image = None
     u.save()
     return jsonify(u.to_dict(include_email=True))
+
+# stripe payment
+@main_bp.route('/payment/', methods=['POST'])
+@token_auth.login_required
+def pay():
+    # user_id = request.get_json()['user_id']
+    # sitter = get_one(Sitter, '_id', ObjectId(user_id))
+    customer = stripe.Customer.create(email=request.get_json()['stripeEmail'], source=request.get_json()['stripToken'])
+    charge = stripe.Charge.create(
+        customer = customer.id,
+        amount = 9999,
+        currency = 'cad',
+        description = 'Sitting Charge'
+    )
+    response = jsonify('Payment Successful, Thank you!')
+    response.status_code = 200
+    return response
