@@ -1,11 +1,10 @@
 import React from "react";
-import { Grid, Card, Typography,TextField, CardContent, CardActions, Avatar, Divider } from "@material-ui/core";
+import { Grid, Card, Typography,TextField, CardContent, CardActions, Avatar, Divider, Button, CardActionArea} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import LocationIcon from "@material-ui/icons/LocationOn";
 import { DateRangePicker} from 'react-dates';
 
 
-// import SvgIcon from '@material-ui/core/SvgIcon';
 
 
 const useStyles = makeStyles(theme => ({
@@ -62,10 +61,16 @@ const useStyles = makeStyles(theme => ({
   light:{
     color:theme.light,
     marginLeft: theme.spacing(0.5)
-  }
+  },
+  find: {
+    backgroundColor: "#f04040",
+    padding: "10% auto",
+    marginLeft: "2%",
+    color: "#efefef"
+  },
 }));
 
-export default function Search_grid(props) {
+export default function SearchGrid(props) {
   const classes = useStyles();
   const {search_sitters, users, startDate,
     endDate,
@@ -76,11 +81,6 @@ export default function Search_grid(props) {
       const location = value
       props.handleSearchChange({location})
   };
-  const onSubmit = (e) =>{
-    console.log("in submit")
-    e.preventDefault();
-    search_sitters();
-  }
   return (
     <div className={classes.parent} >
       <Grid container className={classes.root} spacing={5}>
@@ -94,7 +94,7 @@ export default function Search_grid(props) {
               alignItems="center"
               className={classes.avatarGrid}
             >
-            <form className={classes.form} onSubmit={onSubmit} noValidate autoComplete="off">
+            <form className={classes.form}  noValidate autoComplete="off">
               <TextField
                         id="standard-name"
                         label="Where"
@@ -116,6 +116,9 @@ export default function Search_grid(props) {
                         focusedInput={focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
                         onFocusChange={focusedInput => handleSearchChange({ focusedInput })} // PropTypes.func.isRequired,
                 />
+                <Button size="medium" className={classes.find} spacing={2} onClick={()=>{search_sitters()}}>
+                      Find my Dog Sitter
+                </Button>
               <br />
             </form>
             </Grid>
@@ -126,55 +129,57 @@ export default function Search_grid(props) {
             {users.map((value, index) => (
               <Grid key={index} item xs={12} sm={6} md={6} lg={4}>
                 <Card className={classes.card}>
-                  <CardContent >
-                    <Grid
-                      container
-                      justify="center"
-                      alignItems="center"
-                      className={classes.avatarGrid}
-                    >
-                      <Avatar
-                        alt="Remy Sharp"
-                        src={value.profile_image}
-                        className={classes.profilePhoto}
-                      />
-                    </Grid>
-                    <Typography gutterBottom variant="h5" component="h2" align="center">
-                      {value.first_name} {value.last_name}
-                    </Typography>
-                    <Grid
-                      container
-                      justify="center"
-                      alignItems="center"
-                    >
-                    </Grid>
-                    <Typography variant="body1" color="textPrimary" noWrap component="p" align="center">
-                      {/* {value.about_me.split(' ').slice(0, 10).join(' ') } */}
-                      {value.about_me}
-                    </Typography>
-                  </CardContent>
-                  <Divider />
-                  <CardActions >
-                    <Grid container
-                      justify="center"
-                      alignItems="center" pb={5}>
-                      <Grid container item xs={6} direction="row" alignItems="center">
-                        <Grid item>
-                          <LocationIcon className={classes.location} />
+                  <CardActionArea>
+                    <CardContent >
+                      <Grid
+                        container
+                        justify="center"
+                        alignItems="center"
+                        className={classes.avatarGrid}
+                      >
+                        <Avatar
+                          alt="Remy Sharp"
+                          src={value.profile_image}
+                          className={classes.profilePhoto}
+                        />
+                      </Grid>
+                      <Typography gutterBottom variant="h5" component="h2" align="center">
+                        {value.first_name} {value.last_name}
+                      </Typography>
+                      <Grid
+                        container
+                        justify="center"
+                        alignItems="center"
+                      >
+                      </Grid>
+                      <Typography variant="body1" color="textPrimary" noWrap component="p" align="center">
+                        {/* {value.about_me.split(' ').slice(0, 10).join(' ') } */}
+                        {value.about_me}
+                      </Typography>
+                    </CardContent>
+                    <Divider />
+                    <CardActions >
+                      <Grid container
+                        justify="center"
+                        alignItems="center" pb={5}>
+                        <Grid container item xs={6} direction="row" alignItems="center">
+                          <Grid item>
+                            <LocationIcon className={classes.location} />
+                          </Grid>
+                          <Grid item>
+                            <Typography gutterBottom variant="subtitle2" align="center" className={classes.light}>
+                              {value.location} 
+                            </Typography>
+                          </Grid>
                         </Grid>
-                        <Grid item>
-                          <Typography gutterBottom variant="subtitle2" align="center" className={classes.light}>
-                            {value.location} 
+                        <Grid item xs={6}>
+                          <Typography gutterBottom variant="subtitle1" align="right">
+                            <strong>${value.rate}/day</strong>
                           </Typography>
                         </Grid>
                       </Grid>
-                      <Grid item xs={6}>
-                        <Typography gutterBottom variant="subtitle1" align="right">
-                          <strong>${value.rate}/day</strong>
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </CardActions>
+                    </CardActions>
+                  </CardActionArea>
                 </Card>              
               </Grid>
             ))}

@@ -23,11 +23,11 @@ def update_profile():
     gender = profile_data['gender']
     about_me = profile_data['about_me']
     location = profile_data['location'].capitalize()
+
+    u = g.current_user
     if 'rate' in profile_data:
         charge = profile_data['rate']
         u.charge = charge
-
-    u = g.current_user
     u.birthdate = birthdate
     u.gender = gender
     u.about_me = about_me

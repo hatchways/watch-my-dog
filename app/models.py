@@ -215,8 +215,8 @@ class Sitter(UserMixin, MongoModel):
         }
         if include_email:
             data['email'] = self.email
-        if self.token and include_token:
-            data['token'] = self.token
+        if include_token:
+            data['token'] = self.get_token()
         return data
 
     def from_dict(self, data, new_user=False):
@@ -301,7 +301,7 @@ class Owner(UserMixin, MongoModel):
         self.token_expiration = datetime.now() - timedelta(seconds=1)
 
     # #api
-    def to_dict(self, include_email=True):
+    def to_dict(self, include_email=True, include_token=True):
         data = {
             'first_name': self.first_name,
             'last_name': self.last_name,
@@ -314,8 +314,8 @@ class Owner(UserMixin, MongoModel):
         }
         if include_email:
             data['email'] = self.email
-        if self.token:
-            data['token'] = self.token
+        if include_token:
+            data['token'] = self.get_token()
         return data
 
     def from_dict(self, data, new_user=False):

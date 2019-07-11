@@ -59,7 +59,7 @@ def login():
 @main_bp.route("/logout")
 @token_auth.login_required
 def logout():
-    g.current_user.revoke_token()
+    # g.current_user.revoke_token()
     g.current_user = None
     if json_response_needed():
         return '', 200
@@ -77,7 +77,7 @@ def register():
         u = get_one(collection, 'email', email)
         print("found anyone????", u)
         if u:
-            error_response(500, "user exists")
+             return error_response(500, "user exists")
         u = collection(
             first_name=request.get_json()['first_name'],
             last_name=request.get_json()['last_name'],

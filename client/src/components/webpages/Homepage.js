@@ -14,7 +14,7 @@ import {
   getFromStorage,
   removeFromStorage
 } from "../Utilities/storage";
-import Search_grid from "../styling/Search_grid";
+import SearchGrid from "../styling/SearchGrid";
 
 
 // email and password validation by Regular expression
@@ -140,6 +140,7 @@ class Homepage extends Component {
               lastName: res.data.last_name,
               email: res.data.email,
               isLoading: false,
+              is_sitter: !!getFromStorage("dog_sitter")? true : false, 
               profile_data: {
                 ...this.state.profile_data,
                 gender: res.data.gender === null ? 0 : res.data.gender,
@@ -248,7 +249,6 @@ class Homepage extends Component {
         })
         .then(res => res.data)
         .then(result => {
-          console.log(result);
           this.setState({
             email: "",
             password: ""
@@ -350,8 +350,12 @@ class Homepage extends Component {
     });
     const lStorageName = sitter ? "dog_sitter" : "dog_owner";
     const token = getFromStorage(lStorageName);
-    axios
-      .get("/logout", { token, is_sitter : sitter })
+    const options = {
+      method: "GET",
+      headers: { Authorization: "Bearer " + token },
+      url : "/logout"
+    }
+    axios(options)
       .then(res => {
         this.setState({
           token: "",
@@ -551,7 +555,7 @@ class Homepage extends Component {
           />
           <Route path={`/search`} render={props => {
              return (
-                <Search_grid
+                <SearchGrid
                   {...props}
                   search_sitters={this.search_sitters}
                   handleSearchChange = {this.handleSearchChange}

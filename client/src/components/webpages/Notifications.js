@@ -2,10 +2,6 @@ import React, { Component } from 'react'
 import {
     Grid,
     Paper,
-    List,
-    ListItem,
-    ListItemText,
-    CircularProgress,
     withStyles
   } from "@material-ui/core";
 

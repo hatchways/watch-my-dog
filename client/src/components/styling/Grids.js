@@ -57,9 +57,6 @@ const styles = theme => ({
 });
 
 class Grids extends Component{
-  constructor(){
-    super();
-  }
   handleChange = (e) =>{
     const {value} = e.target;
     const location = value

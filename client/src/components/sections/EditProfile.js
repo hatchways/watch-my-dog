@@ -111,7 +111,7 @@ class EditProfile extends Component {
                 select
                 name="gender"
                 className={classes.textField}
-                value={profile_data.gender}
+                value={profile_data.gender || 0}
                 onChange={this.handleGenderChange}
                 SelectProps={{
                   MenuProps: {
