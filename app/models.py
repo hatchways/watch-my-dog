@@ -213,8 +213,8 @@ class Sitter(UserMixin, MongoModel):
         }
         if include_email:
             data['email'] = self.email
-        if self.token and include_token:
-            data['token'] = self.token
+        if include_token:
+            data['token'] = self.get_token()
         return data
 
     def from_dict(self, data, new_user=False):
@@ -329,8 +329,8 @@ class Owner(UserMixin, MongoModel):
         }
         if include_email:
             data['email'] = self.email
-        if self.token:
-            data['token'] = self.token
+        if include_token:
+            data['token'] = self.get_token()
         return data
                                
     def from_dict(self, data, new_user=False):

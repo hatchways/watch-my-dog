@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import {CardElement, injectStripe} from 'react-stripe-elements';
 import {getFromStorage} from './storage';
+import axios from 'axios';
 
 
 class CheckoutForm extends Component {
@@ -12,19 +13,26 @@ class CheckoutForm extends Component {
       this.submit = this.submit.bind(this);
     }
     async submit(ev){
-      const token_type = "dog_owner";
+      const token_type = "dog_sitter";
       const auth_token = getFromStorage(token_type);
-
+      const url = "/payment/";
       let {token} = await this.props.stripe.createToken({name:'Name'});
-      let response = await fetch("/payment/", {
+      let config = {
         method: "POST",
-        headers: {
-            'Authorization': "Bearer " + auth_token,
-            "Content-Type":"application/json"
+        headers: { Authorization: "Bearer " + auth_token.token },
+        data: {
+          stripToken: token.id,
+          stripeEmail: "test66@t.com" 
         },
-        body: token.id
-      });        
-      if (response.ok) this.setState({complete: true});
+        url
+      }
+      axios(config)
+        .then((response)=>{
+          console.log(response)
+          if (response.ok){
+            this.setState({complete: true})
+          };
+        })       
     }
     render(){
       if (this.state.complete) return <h1>Purchase Complete!</h1>;
