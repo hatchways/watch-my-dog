@@ -22,13 +22,13 @@ def get_one(Collection, fieldname, fieldvalue):
     return one
 
 
-def get_many(Collection, fieldname, fieldvalue):
-    try:
-        many = list(Collection.objects.raw({fieldname: fieldvalue}))
-    except Collection.DoesNotExist:
-        print('object not found')
-        many = None
-    return many
+# def get_many(Collection, fieldname, fieldvalue):
+#     try:
+#         many = list(Collection.objects.raw({fieldname: fieldvalue}))
+#     except Collection.DoesNotExist:
+#         print('object not found')
+#         many = None
+#     return many
 
 
 def get_one_or_404(Collection, fieldname, fieldvalue):
@@ -39,16 +39,16 @@ def get_one_or_404(Collection, fieldname, fieldvalue):
     return one
 
 
-# def get_many(Collection, fieldnames, fieldvalues):
-#    try:
-#        filter = {}
-#        for i in range(len(fieldnames)):
-#            filter = filter.update({fieldnames[i]: fieldvalues[i]})
-#        many = [Collection.objects.raw(filter)]
-#    except Collection.DoesNotExist:
-#        print('object not found')
-#        many = None
-#    return many
+def get_many(Collection, fieldnames, fieldvalues):
+   try:
+       filter = {}
+       for i in range(len(fieldnames)):
+           filter[fieldnames[i]] = fieldvalues[i]
+       many = Collection.objects.raw(filter)
+   except Collection.DoesNotExist:
+       print('object not found')
+       many = None
+   return many
 
 
 class User(UserMixin, MongoModel):

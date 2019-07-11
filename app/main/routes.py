@@ -101,7 +101,7 @@ def get_all_sitters():
     print(request.get_json()['startDate'])
     if location:
         collection = Sitter
-        many = get_many(collection, 'location', location)
+        many = get_many(collection, ['location'], [location])
         response = jsonify(
             {"users": [user.to_dict(include_token=False) for user in many]})
         return response, 200
@@ -126,21 +126,38 @@ def user_sitter():
     return error_response(404)
 
 
-@main_bp.route('/requests')
+@main_bp.route('/make_request')
 @token_auth.login_required
-def view_requests():
-    is_sitter = request.get_json()['is_sitter']
-    user = g.current_user
-    if is_sitter:
-        user.last_time_view_requests = datetime.utcnow()
-        appmts = get_many(AppointmentRequest, 'request_to', ObjectId(user.pk))
-    else:
-        appmts = get_many(AppointmentRequest, 'created_by', ObjectId(user.pk))
-    appmts = appmts.order_by({'timestamp': pymongo.DESCENDING})
-    appointment_requests = [appmt.to_dict() for appmt in appmts]
-    response = jsonify(appointment_requests)
-    response.status_code = 200
-    return response
+def make_appmt_request(user_id, time_reserved):
+   current_user = g.current_user
+   appmt = AppointmentRequest(
+       created_by = current_user,
+       request_to = user_id,
+       status = 'pending',
+       timestamp = datetime.utcnow(),
+       time_reserved = time_reserved,
+       is_past = False
+   )
+   appmt.save()
+   user = get_one(Sitter, '_id', ObjectId(user_id))
+   user.create_rq_notification('Sitter', 'new_request', 'you have '+ user.new_appmt_rqs() + ' new appointment requests')
+   send_email('you have '+ user.new_appmt_rqs() + ' new appointment requests', current_app.config['ADMIN'][0], user.email)
+   response = jsonify(appmt.to_dict())
+   response.status_code = 200
+   return response
+
+
+@main_bp.route('/notifications')
+@token_auth.login_required
+def view_notifications():
+   since = request.args.get('since', 0.0, type=float)
+   notifications = get_many(Notification, ['user_collection', 'sent_to', 'type_of_notification', 'timestamp' ], ['Sitter', ObjectId(self.pk), 'new_request', {'$gt': since}])
+   notifications = notifications.order_by({'timestamp': pymongo.DESCENDING})
+   return jsonify([{
+       'type_of_notification': n.type_of_notification,
+       'data': n.get_data(),
+       'timestamp': n.timestamp
+   } for n in notifications])
 
 
 @main_bp.route('/upload_profile_image', methods=['GET', 'POST'])
@@ -199,3 +216,25 @@ def d_file():
     u.profile_image = None
     u.save()
     return jsonify(u.to_dict(include_email=True))
+
+
+
+
+# appointment requests
+@main_bp.route('/requests')
+@token_auth.login_required
+def view_requests():
+   is_sitter = request.get_json()['is_sitter']
+   current_user = g.current_user
+   if is_sitter:
+       current_user.last_time_view_requests = datetime.utcnow()
+       current_user.create_rq_notification('Sitter', 'new_request', 'you have 0 new appointment requests')
+       appmts = get_many(AppointmentRequest, 'request_to', ObjectId(current_user.pk))
+   else:
+       appmts = get_many(AppointmentRequest, 'created_by', ObjectId(current_user.pk))
+   appmts = appmts.order_by({'timestamp': pymongo.DESCENDING})
+   appointment_requests = [appmt.to_dict() for appmt in appmts]
+   response = jsonify(appointment_requests)
+   response.status_code = 200
+   return response
+
