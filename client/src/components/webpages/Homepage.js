@@ -248,6 +248,7 @@ class Homepage extends Component {
         })
         .then(res => res.data)
         .then(result => {
+          console.log(result);
           this.setState({
             email: "",
             password: ""

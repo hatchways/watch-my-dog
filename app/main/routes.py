@@ -88,8 +88,8 @@ def register():
         u.save()
         u.get_token(3600*24*10)
         u.save()
-        send_email('Successfully Registered',
-                   current_app.config['ADMIN'][0], u.email, 'Congrats')
+        # send_email('Successfully Registered',
+        #            current_app.config['ADMINS'][0], u.email, 'Congrats')
         response = jsonify(u.to_dict())
         response.status_code = 201
         return response
