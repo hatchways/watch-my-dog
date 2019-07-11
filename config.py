@@ -13,3 +13,8 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['teamlowry2019@gmail.com']
+    S3_BUCKET                 = os.environ.get("S3_BUCKET_NAME")
+    S3_KEY                    = os.environ.get("S3_ACCESS_KEY")
+    S3_SECRET                 = os.environ.get("S3_SECRET_ACCESS_KEY")
+    S3_LOCATION               = 'http://{}.s3.amazonaws.com/'.format(S3_BUCKET)
+
