@@ -38,11 +38,6 @@ const useStyles = makeStyles(theme => ({
   textField: {
     width: "100%"
   },
-  find: {
-    backgroundColor: "#f04040",
-    padding: "1% 2%",
-    color: "#efefef"
-  },
   form:{
     [theme.breakpoints.down('xs')]: {
       width:"100%"
@@ -81,6 +76,9 @@ export default function SearchGrid(props) {
       const location = value
       props.handleSearchChange({location})
   };
+  const onClick = (index) =>{
+    props.routeTo(index);
+  }
   return (
     <div className={classes.parent} >
       <Grid container className={classes.root} spacing={5}>
@@ -128,7 +126,7 @@ export default function SearchGrid(props) {
           <Grid container justify="center" spacing={10}>
             {users.map((value, index) => (
               <Grid key={index} item xs={12} sm={6} md={6} lg={4}>
-                <Card className={classes.card}>
+                <Card className={classes.card} onClick={()=>onClick(index)}>
                   <CardActionArea>
                     <CardContent >
                       <Grid

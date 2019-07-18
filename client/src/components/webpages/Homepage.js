@@ -6,6 +6,7 @@ import SignUp from "../authentication/SignUp";
 import SignIn from "../authentication/SignIn";
 import UserSignUp from "../authentication/UserSignUp";
 import UserLogIn from "../authentication/UserLogIn";
+import SitterInfo from '../sections/SitterInfo'; 
 import Profile from "../webpages/Profile";
 import Notifications from "../webpages/Notifications";
 import axios from "axios";
@@ -72,8 +73,10 @@ class Homepage extends Component {
         rate: "",
         profile_image:""
       },
-      search_results:[]
-    };
+      search_results:[],
+      selectedDate: null,
+      currentSitter: ""
+    }
   }
 
   handleDateChange = date => {
@@ -107,6 +110,12 @@ class Homepage extends Component {
         [ele[0]]: ele[1]
       })
     })
+  };
+  handleSelectedDate = date => {
+    console.log(date);
+    this.setState({
+      selectedDate:  date
+    });
   };
   verify = () => {
     const token_type = !!getFromStorage("dog_sitter")
@@ -333,7 +342,6 @@ class Homepage extends Component {
         return result;
       })
       .catch(error => {
-        // console.log(error);
         this.setState({
           isAuthenticated: false,
           isLoading: false
@@ -503,8 +511,8 @@ class Homepage extends Component {
   };
   search_sitters = ()=>{
     const {location, startDate, endDate} = this.state;
-    console.log(location, startDate, endDate)
-    if(location && startDate && endDate){
+    // if(location && startDate && endDate){
+    if(location){
       axios.post("/search_sitter", {location, startDate, endDate})
         .then(res=>{
             if(res.data.users.length > 0){
@@ -527,7 +535,26 @@ class Homepage extends Component {
     else{
       alert("Please enter location & select dates.");
     }
-}
+  }
+  routeTo = (index) =>{
+    console.log(this.state.search_results[index])
+    const promise = new Promise((resolve, reject)=>{
+      resolve();
+    })
+    promise
+      .then(()=>{
+        this.setState({
+          currentSitter : this.state.search_results[index]
+        })
+      })
+      .then(()=>{
+        this.props.history.push(`/sitter?=${this.state.currentSitter.first_name}`);
+      })
+      .catch((error)=>{
+        console.log(error);
+      })
+  }
+
   render() {
     return (
       <React.Fragment>
@@ -559,6 +586,7 @@ class Homepage extends Component {
                   {...props}
                   search_sitters={this.search_sitters}
                   handleSearchChange = {this.handleSearchChange}
+                  routeTo = {this.routeTo}
                   users = {this.state.search_results}
                   startDate= {this.state.startDate}
                   endDate = {this.state.endDate} 
@@ -658,6 +686,22 @@ class Homepage extends Component {
               );
             }}
           />
+          <Route
+            path="/sitter"
+            render={props => {
+              return (
+                <SitterInfo
+                  {...props}
+                  isAuthenticated={this.state.isAuthenticated}
+                  currentSitter = {this.state.currentSitter}
+                  handleSelectedDate= {this.handleSelectedDate}
+                  selectedDate= {this.state.selectedDate}
+                  handleSearchChange = {this.handleSearchChange}
+
+                />
+              );
+            }}
+          />{" "}
         </Switch>{" "}
       </React.Fragment>
     );

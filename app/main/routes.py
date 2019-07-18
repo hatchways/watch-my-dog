@@ -88,8 +88,8 @@ def register():
         u.save()
         u.get_token(3600*24*10)
         u.save()
-        # send_email('Successfully Registered',
-        #            current_app.config['ADMINS'][0], u.email, 'Congrats')
+        send_email('Successfully Registered',
+                   current_app.config['ADMINS'][0], [u.email], 'Congrats')
         response = jsonify(u.to_dict())
         response.status_code = 201
         return response
@@ -221,9 +221,10 @@ def d_file():
 
 
 # appointment requests
-@main_bp.route('/requests')
+@main_bp.route('/requests', methods=['GET', 'POST'])
 @token_auth.login_required
 def view_requests():
+   print(request.get_json()['is_sitter'])
    is_sitter = request.get_json()['is_sitter']
    current_user = g.current_user
    if is_sitter:
