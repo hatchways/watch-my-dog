@@ -21,7 +21,7 @@ connect("mongodb+srv://hello:whysoserious@cluster0-l1lfs.mongodb.net/test?retryW
 def create_app(config_class=Config):
     # creating app instance
     # __name__ is a pre-defined variable that contains the name of the module
-    app = Flask(__name__, static_folder="../client/build/static", template_folder="../client/build/")
+    app = Flask(__name__, static_folder="../client/build/static", template_folder="../client/build")
     app.config.from_object(config_class)
 
     class CustomSecureCookieSessionInterface(SecureCookieSessionInterface):
