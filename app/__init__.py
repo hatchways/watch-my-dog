@@ -18,7 +18,6 @@ mail = Mail()
 # connect(os.environ.get("mongoURL"), alias="dog-sitting")
 connect("mongodb+srv://hello:whysoserious@cluster0-l1lfs.mongodb.net/test?retryWrites=true&w=majority", alias="dog-sitting")
 
-
 def create_app(config_class=Config):
     # creating app instance
     # __name__ is a pre-defined variable that contains the name of the module
