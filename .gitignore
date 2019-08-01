@@ -109,7 +109,7 @@ ENV/
 .idea/
 ./client/src/components/Utilities/keys.js
 .vscode/*
-config.py
+# config.py
 run.txt
 env3/
 *.env
