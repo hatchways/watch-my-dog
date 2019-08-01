@@ -17,7 +17,6 @@ import boto3
 import botocore
 from werkzeug.utils import secure_filename
 
-
 @main_bp.route('/')
 @main_bp.route('/index/')
 def index():
@@ -30,7 +29,7 @@ def index():
             return jsonify(u.to_dict())
         else:
             return '', 200
-    return render_template('index.html')
+    return render_template('/index.html')
 
 
 @main_bp.route('/login', methods=['GET', 'POST'])
