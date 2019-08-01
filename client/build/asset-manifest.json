@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/static/css/main.00d88364.chunk.css",
+    "main.js": "/static/js/main.b6db4060.chunk.js",
+    "main.js.map": "/static/js/main.b6db4060.chunk.js.map",
+    "runtime~main.js": "/static/js/runtime~main.a8a9905a.js",
+    "runtime~main.js.map": "/static/js/runtime~main.a8a9905a.js.map",
+    "static/css/2.6d2c8d95.chunk.css": "/static/css/2.6d2c8d95.chunk.css",
+    "static/js/2.e2b77ab2.chunk.js": "/static/js/2.e2b77ab2.chunk.js",
+    "static/js/2.e2b77ab2.chunk.js.map": "/static/js/2.e2b77ab2.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.92f1ba808b5e9197d8700b8de85ef53f.js": "/precache-manifest.92f1ba808b5e9197d8700b8de85ef53f.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/2.6d2c8d95.chunk.css.map": "/static/css/2.6d2c8d95.chunk.css.map",
+    "static/css/main.00d88364.chunk.css.map": "/static/css/main.00d88364.chunk.css.map",
+    "static/media/index.css": "/static/media/Gilroy-Regular.22d25e11.ttf",
+    "static/media/dog-mainpage.png": "/static/media/dog-mainpage.66fa8a3d.png",
+    "static/media/home.jpg": "/static/media/home.3a0182e3.jpg"
+  }
+}
