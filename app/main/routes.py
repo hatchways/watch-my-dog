@@ -32,7 +32,6 @@ def index():
             return '', 200
     return render_template('/index.html')
 
-
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if json_response_needed():
