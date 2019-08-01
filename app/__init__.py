@@ -24,6 +24,7 @@ def create_app(config_class=Config):
     app = Flask(__name__, static_folder="../client/build/static", template_folder="../client/build/")
     app.config.from_object(config_class)
 
+
     class CustomSecureCookieSessionInterface(SecureCookieSessionInterface):
         # preventing creating sessions from api requests
         def save_session(self, *args, **kwargs):
