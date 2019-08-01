@@ -1,1 +1,1 @@
-web: gunicorn dog-sitting:app
+web: gunicorn --chdir ./app/ __init__:app
