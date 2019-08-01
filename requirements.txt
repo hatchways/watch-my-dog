@@ -28,7 +28,7 @@ MarkupSafe==1.1.1
 pycparser==2.19
 Pygments==2.4.2
 PyJWT==1.7.1
-pymodm==0.4.1
+pymodm[tls,srv]==0.4.1
 pymongo==3.8.0
 python-dateutil==2.8.0
 python-dotenv==0.10.3
