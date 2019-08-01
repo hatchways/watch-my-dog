@@ -1,8 +1,8 @@
 import React from "react";
 import { Grid, Card, Typography,TextField, CardContent, CardActions, Avatar, Divider, Button, CardActionArea} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import LocationIcon from "@material-ui/icons/LocationOn";
 import { DateRangePicker} from 'react-dates';
+import SearchGridItems from "./SearchGridItems";
 
 
 
@@ -50,9 +50,6 @@ const useStyles = makeStyles(theme => ({
     },
     width:"50%"
   },
-  location:{
-    color: theme.primary
-  },
   light:{
     color:theme.light,
     marginLeft: theme.spacing(0.5)
@@ -67,18 +64,27 @@ const useStyles = makeStyles(theme => ({
 
 export default function SearchGrid(props) {
   const classes = useStyles();
-  const {search_sitters, users, startDate,
+  const {
+    search_sitters, 
+    users, 
+    startDate,
     endDate,
     focusedInput,
-    handleSearchChange} = props;
+    handleSearchChange,
+    routeTo} = props;
   const handleChange = (e) =>{
       const {value} = e.target;
       const location = value
       props.handleSearchChange({location})
   };
-  const onClick = (index) =>{
-    props.routeTo(index);
-  }
+  const gridJSX = users.map((value, index)=>{
+      return <SearchGridItems 
+                key = {index}
+                value = {value}
+                routeTo= {()=>{routeTo(index)}}
+            />
+  })
+
   return (
     <div className={classes.parent} >
       <Grid container className={classes.root} spacing={5}>
@@ -124,63 +130,7 @@ export default function SearchGrid(props) {
         </Grid>
         <Grid item xs={12}>
           <Grid container justify="center" spacing={10}>
-            {users.map((value, index) => (
-              <Grid key={index} item xs={12} sm={6} md={6} lg={4}>
-                <Card className={classes.card} onClick={()=>onClick(index)}>
-                  <CardActionArea>
-                    <CardContent >
-                      <Grid
-                        container
-                        justify="center"
-                        alignItems="center"
-                        className={classes.avatarGrid}
-                      >
-                        <Avatar
-                          alt="Remy Sharp"
-                          src={value.profile_image}
-                          className={classes.profilePhoto}
-                        />
-                      </Grid>
-                      <Typography gutterBottom variant="h5" component="h2" align="center">
-                        {value.first_name} {value.last_name}
-                      </Typography>
-                      <Grid
-                        container
-                        justify="center"
-                        alignItems="center"
-                      >
-                      </Grid>
-                      <Typography variant="body1" color="textPrimary" noWrap component="p" align="center">
-                        {/* {value.about_me.split(' ').slice(0, 10).join(' ') } */}
-                        {value.about_me}
-                      </Typography>
-                    </CardContent>
-                    <Divider />
-                    <CardActions >
-                      <Grid container
-                        justify="center"
-                        alignItems="center" pb={5}>
-                        <Grid container item xs={6} direction="row" alignItems="center">
-                          <Grid item>
-                            <LocationIcon className={classes.location} />
-                          </Grid>
-                          <Grid item>
-                            <Typography gutterBottom variant="subtitle2" align="center" className={classes.light}>
-                              {value.location} 
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                        <Grid item xs={6}>
-                          <Typography gutterBottom variant="subtitle1" align="right">
-                            <strong>${value.rate}/day</strong>
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </CardActions>
-                  </CardActionArea>
-                </Card>              
-              </Grid>
-            ))}
+              {gridJSX}
           </Grid>
         </Grid>
       </Grid>

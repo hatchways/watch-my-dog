@@ -46,11 +46,14 @@ def login():
 
         if email:
             user = get_one(collection, 'email', email)
-
         if user:
             if not user.check_password(password):
                 abort(401)
-            response = jsonify(user.to_dict())
+            token = user.get_token(3600 * 24 * 15)
+            user.save()
+            data = user.to_dict()
+            data['token'] = token
+            response = jsonify(data)
             response.status_code = 200
             return response
         return error_response(404)
@@ -72,27 +75,27 @@ def register():
         # parse request
         is_sitter = request.get_json()['is_sitter']
         collection = Sitter if is_sitter else Owner
-
         email = request.get_json()['email']
         u = get_one(collection, 'email', email)
         print("found anyone????", u)
         if u:
              return error_response(500, "user exists")
-        u = collection(
-            first_name=request.get_json()['first_name'],
-            last_name=request.get_json()['last_name'],
-            email=request.get_json()['email'],
-            timestamp=datetime.utcnow()
-        )
-        u.set_password(request.get_json()['password'])
-        u.save()
-        u.get_token(3600*24*10)
-        u.save()
-        send_email('Successfully Registered',
-                   current_app.config['ADMINS'][0], [u.email], 'Congrats')
-        response = jsonify(u.to_dict())
-        response.status_code = 201
-        return response
+        else:
+             u = collection(
+                 first_name=request.get_json()['first_name'],
+                 last_name=request.get_json()['last_name'],
+                 email=request.get_json()['email'],
+                 timestamp=datetime.utcnow()
+             )
+             u.set_password(request.get_json()['password'])
+             u.save()
+             u.get_token(3600*24*10)
+             u.save()
+             send_email('Successfully Registered',
+                     current_app.config['ADMINS'][0], [u.email], 'Congrats')
+             response = jsonify(u.to_dict())
+             response.status_code = 201
+             return response
 
 
 @main_bp.route('/search_sitter', methods=['GET', 'POST'])

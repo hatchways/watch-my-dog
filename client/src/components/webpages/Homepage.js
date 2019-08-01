@@ -35,10 +35,6 @@ const formValid = ({ formErrors, ...rest }) => {
     val.length > 0 && (valid = false);
   });
 
-  // validate the form was filled out
-  // Object.values(rest).forEach(val => {
-  //   val === null && (valid = false);
-  // });
 
   return valid;
 };
@@ -697,7 +693,8 @@ class Homepage extends Component {
                   handleSelectedDate= {this.handleSelectedDate}
                   selectedDate= {this.state.selectedDate}
                   handleSearchChange = {this.handleSearchChange}
-
+                  users = {this.state.search_results}
+                  routeTo = {this.routeTo}
                 />
               );
             }}
