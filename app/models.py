@@ -214,6 +214,7 @@ class Sitter(UserMixin, MongoModel):
             'profile_image': self.profile_image or self.default_url
         }
         if include_email:
+            print("###################### inside to_dict")
             data['email'] = self.email
         if include_token:
             data['token'] = self.get_token()
