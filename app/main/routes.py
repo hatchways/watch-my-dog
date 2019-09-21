@@ -23,7 +23,6 @@ from werkzeug.utils import secure_filename
 def index(path):
     path_dir = os.path.abspath("../../client/build") #path react build
     if path != "" and os.path.exists(os.path.join(path_dir, path)):
-        print("got inside / path")
         return send_from_directory(os.path.join(path_dir), path)
     else:
         return render_template('index.html')
@@ -116,10 +115,10 @@ def user_owner():
 @main_bp.route('/user_sitter', methods=['GET', 'POST'])
 @token_auth.login_required
 def user_sitter():
-    print("got inside/user_sitter")
     user = g.current_user
     if user:
-        return jsonify(user.to_dict())
+        result = user.to_dict()
+        return jsonify(result)
     return error_response(404)
 
 
