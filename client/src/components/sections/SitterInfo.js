@@ -47,7 +47,7 @@ const styles=theme =>({
 class SitterInfo extends Component {
     render() {
     const {currentSitter, classes, selectedDate, handleSelectedDate, users, routeTo} = this.props
-    const gridJSX = users.forEach((value, index)=>{
+    const gridJSX = users.map((value, index)=>{
         if(value.email !== currentSitter.email){
             return <SearchGridItems 
                     key = {index}
@@ -62,7 +62,7 @@ class SitterInfo extends Component {
                     <Grid container direction="row">
                         <Grid container item xs={12} sm={12} md={12} lg={8} className={classes.profileWrap}  direction="column">
                             <Paper>
-                                <Card item className={classes.card}>
+                                <Card className={classes.card}>
                                     <CardMedia
                                         component="img"
                                         alt="Contemplative Reptile"
