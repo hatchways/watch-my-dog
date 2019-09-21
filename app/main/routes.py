@@ -35,8 +35,8 @@ def index(path):
         return send_from_directory(os.path.join(path_dir), path)
     else:
         return send_from_directory(os.path.join(path_dir),'index.html')
-    # return render_template('/index.html')
-    return "", 200
+    return render_template('/index.html')
+    # return "", 200
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():

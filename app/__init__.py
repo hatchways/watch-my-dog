@@ -15,8 +15,8 @@ login.login_view = 'main.login'
 
 mail = Mail()
 # pymodm mongodb
-# connect(os.environ.get("mongoURL"), alias="dog-sitting")
-connect("mongodb+srv://hello:whysoserious@cluster0-l1lfs.mongodb.net/test?retryWrites=true&w=majority", alias="dog-sitting")
+connect(os.environ.get("mongoURL"), alias="dog-sitting")
+# connect("mongodb+srv://hello:whysoserious@cluster0-l1lfs.mongodb.net/test?retryWrites=true&w=majority", alias="dog-sitting")
 
 def create_app(config_class=Config):
     # creating app instance
