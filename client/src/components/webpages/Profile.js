@@ -55,6 +55,7 @@ class Profile extends Component {
       profile_data,
       is_sitter
     } = this.props;
+    console.log(isAuthenticated);
     if (isLoading) {
       return (
         <Grid
