@@ -117,7 +117,7 @@ def user_owner():
 def user_sitter():
     user = g.current_user
     if user:
-        print(user.to_dict())
+        print(user)
         result = user.to_dict()
         return jsonify(result)
     return error_response(404)
