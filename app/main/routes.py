@@ -21,22 +21,11 @@ from werkzeug.utils import secure_filename
 @main_bp.route('/', defaults={'path': ''})
 @main_bp.route('/<path:path>')
 def index(path):
-    # if json_response_needed():
-    #     token = request.get_json()['token']
-    #     is_sitter = request.get_json()['is_sitter']
-    #     collection = Sitter if is_sitter else Owner
-    #     if token:
-    #         u = collection.check_token(token)
-    #         return jsonify(u.to_dict())
-    #     else:
-    #         return '', 200
     path_dir = os.path.abspath("../../client/build") #path react build
     if path != "" and os.path.exists(os.path.join(path_dir, path)):
         return send_from_directory(os.path.join(path_dir), path)
     else:
-        return send_from_directory(os.path.join(path_dir),'index.html')
-    # return render_template('index.html')
-    # return "", 200
+        return render_template('index.html')
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
