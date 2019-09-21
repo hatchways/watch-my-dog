@@ -5,11 +5,10 @@ import {
     Paper,
     Avatar,
     withStyles,
-    CardContent, CardActions, Divider, Button, CardActionArea, CardMedia
+    CardContent, Button,CardMedia
   } from "@material-ui/core";
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
-import LocationIcon from "@material-ui/icons/LocationOn";
 import home from "../../static/images/home.jpg";
 import SearchGridItems from "../styling/SearchGridItems"
 import DateFnsUtils from "@date-io/date-fns";
@@ -21,7 +20,7 @@ const styles=theme =>({
         padding: theme.spacing(10)
     },
     profileWrap:{
-        padding: theme.spacing(0,10)
+        padding: theme.spacing(2,10)
     },
     requestWrap:{
         padding: theme.spacing(10)
@@ -47,8 +46,8 @@ const styles=theme =>({
 })
 class SitterInfo extends Component {
     render() {
-    const {currentSitter, classes, selectedDate, handleSelectedDate, value,users, index, routeTo} = this.props
-    const gridJSX = users.map((value, index)=>{
+    const {currentSitter, classes, selectedDate, handleSelectedDate, users, routeTo} = this.props
+    const gridJSX = users.forEach((value, index)=>{
         if(value.email !== currentSitter.email){
             return <SearchGridItems 
                     key = {index}
@@ -85,21 +84,21 @@ class SitterInfo extends Component {
                                                 className={classes.profilePhoto}
                                             />
                                         </Grid>
-                                        <Typography gutterBottom variant="h5" component="h2">
+                                        <Typography gutterBottom variant="h5" component="h2" align="center">
                                             {`${currentSitter.first_name} ${currentSitter.last_name}`}
                                         </Typography>
-                                        <Typography variant="body2" color="textSecondary" component="p">
+                                        <Typography gutterBottom variant="body1" color="textSecondary" component="p">
                                             {currentSitter.location}                                        
                                         </Typography>
 
-                                        <Typography variant="body2" color="textSecondary" component="p">
+                                        <Typography gutterBottom variant="body1" color="textPrimary" component="p">
                                             {currentSitter.about_me}                                        
                                         </Typography>
                                     </CardContent>
                                 </Card>
                             </Paper>
                         </Grid>
-                        <Grid container item spacing={4} xs={12} sm={12} md={12} lg={4}  direction="column">
+                        <Grid container item xs={12} sm={12} md={12} lg={4} className={classes.profileWrap} direction="column">
                             <Paper>
                                 <Grid container item 
                                     className={classes.requestWrap}
@@ -118,14 +117,13 @@ class SitterInfo extends Component {
                                     </Grid>
                                     <br />
                                         <Grid item xs={12} container  justify="center" alignItems="center" fullwidth="true">
-                                            <Typography gutterBottom variant="body2" component="h2" align="left" gutterBottom>
+                                            <Typography gutterBottom variant="body2" component="h2" align="left">
                                                 Select Date
                                             </Typography>
                                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                                 <DatePicker
                                                     fullwidth="true"
                                                     openTo="year"
-                                                    // name="birthdate"
                                                     inputVariant="outlined"
                                                     format="dd/MM/yyyy"
                                                     views={["year", "month", "date"]}
@@ -136,7 +134,7 @@ class SitterInfo extends Component {
                                             <br />
                                         </Grid>
                                         <Grid container item xs={12} justify="center" alignItems="center">
-                                            <Button size="large" className={classes.requestbutton} spacing={2} onClick={()=>{alert("request")}}>
+                                            <Button size="large" className={classes.requestbutton} spacing={2} onClick={()=>{alert("request sent")}}>
                                                 Request
                                             </Button>
                                         </Grid>
@@ -144,14 +142,15 @@ class SitterInfo extends Component {
                                 </Grid>
                             </Paper>
                         </Grid> 
-                        <Grid xs={12} container>
-                            <Paper>
-                                <Grid item xs={12} lg={12} spacing={4} className={classes.recommended}>
-                                    <Grid container justify="center" spacing={10}>
-                                        {gridJSX}
-                                    </Grid>
-                                </Grid>
-                            </Paper>
+                        <Grid container item xs={12} sm={12} md={12} lg={12} className={classes.profileWrap} justify="center" >
+                            <Typography gutterBottom variant="h6" component="h2" >
+                                <strong>Other Recommended Sitters</strong>
+                            </Typography>
+                        </Grid>
+                        <Grid container item xs={12} sm={12} md={12} lg={12} className={classes.profileWrap}>
+                            <Grid container justify="center" spacing={10}>
+                                {gridJSX}
+                            </Grid>
                         </Grid>
                     </Grid> 
                 </div>

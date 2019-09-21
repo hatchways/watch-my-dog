@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Card, Typography,TextField, CardContent, CardActions, Avatar, Divider, Button, CardActionArea} from "@material-ui/core";
+import { Grid, Typography,TextField, Button} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { DateRangePicker} from 'react-dates';
 import SearchGridItems from "./SearchGridItems";
@@ -60,6 +60,10 @@ const useStyles = makeStyles(theme => ({
     marginLeft: "2%",
     color: "#efefef"
   },
+  resultgrid:{
+    margin: theme.spacing(2,0),
+    padding: theme.spacing(5,0)
+  }
 }));
 
 export default function SearchGrid(props) {
@@ -87,7 +91,7 @@ export default function SearchGrid(props) {
 
   return (
     <div className={classes.parent} >
-      <Grid container className={classes.root} spacing={5}>
+      <Grid container className={classes.root}>
         <Grid item xs={12} >
             <Typography variant="h4" align="center">
               Your Search Results
@@ -120,7 +124,7 @@ export default function SearchGrid(props) {
                         focusedInput={focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
                         onFocusChange={focusedInput => handleSearchChange({ focusedInput })} // PropTypes.func.isRequired,
                 />
-                <Button size="medium" className={classes.find} spacing={2} onClick={()=>{search_sitters()}}>
+                <Button size="medium" className={classes.find} onClick={()=>{search_sitters()}}>
                       Find my Dog Sitter
                 </Button>
               <br />
@@ -128,13 +132,12 @@ export default function SearchGrid(props) {
             </Grid>
                         
         </Grid>
-        <Grid item xs={12}>
-          <Grid container justify="center" spacing={10}>
-              {gridJSX}
-          </Grid>
+        <Grid item xs={12} className={classes.resultgrid} >
+            <Grid container justify="center" spacing={10}>
+                {gridJSX}
+            </Grid>
         </Grid>
       </Grid>
     </div>
-
   );
 }

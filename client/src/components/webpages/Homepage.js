@@ -134,7 +134,6 @@ class Homepage extends Component {
         url
       };
       axios(options)
-        // .post(url, { token })
         .then(res => res)
         .then(res => {
           if (res.status === 200) {

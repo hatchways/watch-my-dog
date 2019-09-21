@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Grid, Card, Typography,TextField, CardContent, CardActions, Avatar, Divider, CardActionArea} from "@material-ui/core";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { Grid, Card, Typography, CardContent, CardActions, Avatar, Divider, CardActionArea} from "@material-ui/core";
+import { withStyles } from "@material-ui/core/styles";
 import LocationIcon from "@material-ui/icons/LocationOn";
 
 const styles = theme=>({

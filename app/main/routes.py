@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, jsonify, current_app, request, abort, g
+from flask import render_template, redirect, url_for, jsonify, current_app, request, abort, g, send_from_directory
 from datetime import datetime
 import os
 
@@ -18,19 +18,25 @@ import boto3
 import botocore
 from werkzeug.utils import secure_filename
 
-@main_bp.route('/')
-@main_bp.route('/index/')
-def index():
-    if json_response_needed():
-        token = request.get_json()['token']
-        is_sitter = request.get_json()['is_sitter']
-        collection = Sitter if is_sitter else Owner
-        if token:
-            u = collection.check_token(token)
-            return jsonify(u.to_dict())
-        else:
-            return '', 200
-    return render_template('/index.html')
+@main_bp.route('/', defaults={'path': ''})
+@main_bp.route('/<path:path>')
+def index(path):
+    # if json_response_needed():
+    #     token = request.get_json()['token']
+    #     is_sitter = request.get_json()['is_sitter']
+    #     collection = Sitter if is_sitter else Owner
+    #     if token:
+    #         u = collection.check_token(token)
+    #         return jsonify(u.to_dict())
+    #     else:
+    #         return '', 200
+    path_dir = os.path.abspath("../../client/build") #path react build
+    if path != "" and os.path.exists(os.path.join(path_dir, path)):
+        return send_from_directory(os.path.join(path_dir), path)
+    else:
+        return send_from_directory(os.path.join(path_dir),'index.html')
+    # return render_template('/index.html')
+    return "", 200
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -76,7 +82,6 @@ def register():
         collection = Sitter if is_sitter else Owner
         email = request.get_json()['email']
         u = get_one(collection, 'email', email)
-        print("found anyone????", u)
         if u:
              return error_response(500, "user exists")
         else:
@@ -100,7 +105,6 @@ def register():
 @main_bp.route('/search_sitter', methods=['GET', 'POST'])
 def get_all_sitters():
     location = request.get_json()['location'].capitalize()
-    print(request.get_json()['startDate'])
     if location:
         collection = Sitter
         many = get_many(collection, ['location'], [location])
@@ -203,7 +207,6 @@ def upload_file_to_s3(file, bucket_name, acl="public-read"):
 @token_auth.login_required
 def d_file():
     file_name = request.get_json()['file_name']
-    print("length", file_name)
     if file_name:
         s3 = boto3.client(
             "s3",
@@ -226,7 +229,6 @@ def d_file():
 @main_bp.route('/requests', methods=['GET', 'POST'])
 @token_auth.login_required
 def view_requests():
-   print(request.get_json()['is_sitter'])
    is_sitter = request.get_json()['is_sitter']
    current_user = g.current_user
    if is_sitter:
