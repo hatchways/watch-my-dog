@@ -118,8 +118,7 @@ def user_sitter():
     user = g.current_user
     if user:
         print(user)
-        result = user.to_dict()
-        return jsonify(result)
+        return jsonify(user.to_dict())
     return error_response(404)
 
 
