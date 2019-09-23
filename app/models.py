@@ -189,7 +189,7 @@ class Sitter(UserMixin, MongoModel):
             }
         except Exception as e:
             return e
-        print(jwt.file)
+        print("jwt ##########################" , jwt.file)
         self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
         # self.update({"$set": {"token": token }})
