@@ -26,10 +26,11 @@ def basic_auth_error():
 
 @token_auth.verify_token
 def verify_token(token):
+    print("####################")
     g.current_user = Owner.check_token(token) if token else None
+    print("####################", g.current_user)
     if not g.current_user:
         g.current_user = Sitter.check_token(token) if token else None
-    print(g.current_user)
     return g.current_user is not None
 
 
