@@ -227,12 +227,14 @@ class Sitter(UserMixin, MongoModel):
 
     @staticmethod
     def check_token(token):
+        print("got here    ########## ",token)
         try:
             payload = jwt.decode(
                 token, current_app.config["SECRET_KEY"], algorithm='HS256')
             user_id = payload['token']
         except Exception as e:
             return e
+        print(get_one(Sitter, '_id', ObjectId(user_id)))
         user = get_one(Sitter, '_id', ObjectId(user_id))
         if user is None or user.token_expiration < datetime.now():
             return None
