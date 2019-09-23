@@ -281,6 +281,7 @@ class Homepage extends Component {
           return result;
         })
         .catch(error => {
+          console.log(error);
           alert("User already Exist");
         });
     } else {
