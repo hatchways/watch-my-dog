@@ -116,7 +116,6 @@ def user_owner():
 @token_auth.login_required
 def user_sitter():
     user = g.current_user
-    print("before result  ########################## ", g.current_user)
     if user:
         return jsonify(user.to_dict())
     return error_response(404)

@@ -189,12 +189,9 @@ class Sitter(UserMixin, MongoModel):
             }
         except Exception as e:
             return e
-        print("jwt ##########################" , jwt.file)
         self.token = jwt.encode(payload, current_app.config["SECRET_KEY"],
                                 algorithm="HS256").decode('utf-8')
-        # self.update({"$set": {"token": token }})
         self.token_expiration = now + timedelta(seconds=expires_in)
-        # self.update({"$set":{'token_expiration': token_expiration }})
         return self.token
 
     def revoke_token(self):
