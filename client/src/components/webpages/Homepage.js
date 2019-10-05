@@ -16,7 +16,7 @@ import {
   removeFromStorage
 } from "../Utilities/storage";
 import SearchGrid from "../styling/SearchGrid";
-
+import CustomeSnakebar from "../styling/CustomeSnakebar"
 
 // email and password validation by Regular expression
 const emailRegex = RegExp(
@@ -34,7 +34,7 @@ const formValid = ({ formErrors, ...rest }) => {
   Object.values(formErrors).forEach(val => {
     val.length > 0 && (valid = false);
   });
-
+  !rest.firstName && !rest.lastName && !rest.email && !rest.password && (valid = false);
 
   return valid;
 };
@@ -42,6 +42,8 @@ class Homepage extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      open : false,
+      messageText: "",
       file: null,
       isLoading: true,
       isAuthenticated: false,
@@ -242,6 +244,7 @@ class Homepage extends Component {
     this.setState({
       isLoading: true
     });
+    console.log(formValid(this.state));
     if (formValid(this.state)) {
       axios
         .post("/register", {
@@ -282,15 +285,18 @@ class Homepage extends Component {
         })
         .catch(error => {
           console.log(error);
-          alert("User already Exist");
+          this.setState({
+            open: true,
+            messageText: "User already Exist"
+            })
         });
     } else {
       this.setState({
         isAuthenticated: false,
-        is_sitter: !sitter
-      });
-      alert("Please fullfill the signup Requirement");
-      // console.error("FORM INVALID - DISPLAY ERROR MESSAGE");
+        is_sitter: false,
+        open: true,
+        messageText: "Please fullfill the signup Requirement"
+        });
     }
   };
 
@@ -340,9 +346,10 @@ class Homepage extends Component {
       .catch(error => {
         this.setState({
           isAuthenticated: false,
-          isLoading: false
+          isLoading: false,
+          open: true,
+          messageText: "Email and/or Password dont match"
         });
-        alert("Email and/or Password dont match");
       });
   };
 
@@ -525,11 +532,17 @@ class Homepage extends Component {
         })
         .catch(error=>{
           console.log(error);
-          alert(error);
+          this.setState({
+            open: true,
+            messageText: error
+            })
         })
     }
     else{
-      alert("Please enter location & select dates.");
+      this.setState({
+        open: true,
+        messageText: "Please enter location & select dates."
+        });
     }
   }
   routeTo = (index) =>{
@@ -550,7 +563,12 @@ class Homepage extends Component {
         console.log(error);
       })
   }
-
+  handleSnakebarAction = () =>{
+    this.setState({
+      open: false,
+      message: ''
+    })
+  }
   render() {
     return (
       <React.Fragment>
@@ -561,6 +579,11 @@ class Homepage extends Component {
           handleLogOut={this.handleLogOut}
           profile_data={this.state.profile_data}
         />{" "}
+        <CustomeSnakebar 
+              handleSnakebarAction = {this.handleSnakebarAction} 
+              open = {this.state.open}
+              messageText = {this.state.messageText}
+        /> 
         <Switch>
           <Route exact path="/" render={props => {
              return (
