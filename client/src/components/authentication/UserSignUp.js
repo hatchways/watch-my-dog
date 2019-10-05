@@ -13,7 +13,7 @@ import { withStyles } from "@material-ui/styles";
 const styles = theme => ({
   "@global": {
     body: {
-      backgroundColor: theme.bgcolor
+      backgroundColor: theme.palette.bgcolor.main
     }
   },
   paper: {
@@ -25,7 +25,7 @@ const styles = theme => ({
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.common.white
+    backgroundColor: theme.palette.white
   },
   form: {
     width: "100%", // Fix IE 11 issue.
@@ -39,8 +39,8 @@ const styles = theme => ({
     textDecoration: "none"
   },
   error: {
-    borderColor: theme.error + " !important",
-    color: theme.error
+    borderColor: theme.palette.error.main + " !important",
+    color: theme.palette.error.main
   },
   logo_avatar:{
     padding: theme.spacing(1),

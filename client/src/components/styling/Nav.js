@@ -8,12 +8,9 @@ import dogPaw from "../../static/images/dog-paw.png";
 import Avatar from "@material-ui/core/Avatar";
 
 const styles = theme => ({
-  // root: {
-  //   flexGrow: 1
-  // },
   navbar: {
     background: "white",
-    color: theme.secondary
+    color: theme.palette.secondary.main
   },
   transparentNav: {
     background: "transparent",
@@ -27,24 +24,21 @@ const styles = theme => ({
   title: {
     flexGrow: 1,
     textAlign: "left",
-    color: theme.secondary,
     fontWeight: "bold"
   },
   button: props => ({
     padding: theme.spacing(2, 4),
     margin: theme.spacing(2),
-    color: props.history.location.pathname === "/" ? "white" : theme.secondary
+    color: props.history.location.pathname === "/" ? "white" : theme.palette.secondary.main
   }),
   login: {
     borderColor: "#e3e3e3"
   },
   signup: {
-    backgroundColor: "#f04040",
     marginRight: theme.spacing(5),
-    color: "white"
   },
   link: {
-    color: theme.secondary,
+    color: theme.palette.secondary.main,
     textDecoration: "none"
   },
   notification_link:{
@@ -93,6 +87,8 @@ export default withStyles(styles)(
               to="/usersignup"
               size="medium"
               className={`${classes.button} + ${classes.signup}`}
+              color = "primary"
+              variant="contained"
             >
               Sign Up
             </Button>
@@ -123,7 +119,6 @@ export default withStyles(styles)(
         );
       }
       return (
-        // <div className={classes.root}>
           <AppBar
             className={
               history.location.pathname === "/"
@@ -165,7 +160,6 @@ export default withStyles(styles)(
               {navContent}
             </Toolbar>
           </AppBar>
-        /* </div> */
       );
     }
   }

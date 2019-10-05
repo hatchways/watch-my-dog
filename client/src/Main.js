@@ -10,11 +10,23 @@ const theme = createMuiTheme({
   typography: {
     fontFamily: '"Gilroy"'
   },
-  primary: "#f04040",
-  secondary: "#1f1f1f",
-  error: "#d8000c",
-  bgcolor: "#f6f6f6",
-  light: "#b3b3b3"
+  palette:{
+    primary:{
+      main: "#07C48E"
+    },
+    secondary: {
+      main:"#1f1f1f"
+    },
+    error: {
+      main: "#d8000c"
+    },
+    bgcolor: {
+      main: "#f6f6f6"
+    },
+    light: {
+      main: "#b3b3b3"
+    }
+  },
 });
 
 export default class Main extends Component {

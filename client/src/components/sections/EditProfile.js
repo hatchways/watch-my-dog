@@ -27,7 +27,6 @@ const styles = theme => ({
     textAlign: "justify"
   },
   save_button: {
-    backgroundColor: theme.primary,
     color: "white",
     padding: theme.spacing(2, 4),
     marginTop: theme.spacing(5)
@@ -248,6 +247,7 @@ class EditProfile extends Component {
               variant="contained"
               onClick={this.submitProfile}
               className={classes.save_button}
+              color="primary"
             >
               Save
             </Button>

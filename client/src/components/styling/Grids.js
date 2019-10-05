@@ -50,7 +50,6 @@ const styles = theme => ({
     width: "60%"
   },
   find: {
-    backgroundColor: "#f04040",
     padding: "auto 5%",
     marginTop: "2%",
     color: "#efefef"
@@ -111,7 +110,7 @@ class Grids extends Component{
                       onFocusChange={focusedInput => handleSearchChange({ focusedInput })} // PropTypes.func.isRequired,
                     />
                     <br />
-                    <Button size="large" className={classes.find} spacing={2} onClick={()=>{search_sitters()}}>
+                    <Button size="large"  variant="contained"  color ="primary" className={classes.find} spacing={2} onClick={()=>{search_sitters()}}>
                       Find my Dog Sitter
                     </Button>
                   </form>

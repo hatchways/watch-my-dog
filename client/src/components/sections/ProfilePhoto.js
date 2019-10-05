@@ -18,8 +18,8 @@ const useStyles = makeStyles(theme =>
       marginBottom: theme.spacing(5)
     },
     upload_button: {
-      color: theme.primary,
-      borderColor: theme.primary
+      color: theme.palette.primary.main,
+      borderColor: theme.palette.primary.main
     },
     margin: {
       margin: theme.spacing(2, 0)

@@ -36,7 +36,7 @@ const styles=theme =>({
         objectPosition: "50% 100%"
     },
     requestbutton: {
-        backgroundColor: "#f04040",
+        backgroundColor: theme.palette.primary.main,
         marginTop: "10%",
         color: "#efefef"
     },

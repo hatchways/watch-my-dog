@@ -14,7 +14,7 @@ import dogPaw from "../../static/images/dog-paw.png";
 const styles = theme => ({
   "@global": {
     body: {
-      backgroundColor: theme.bgcolor
+      backgroundColor: theme.palette.bgcolor.main
     }
   },
   paper: {
@@ -26,7 +26,7 @@ const styles = theme => ({
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.white
+    backgroundColor: theme.palette.white
   },
   form: {
     width: "100%", // Fix IE 11 issue.

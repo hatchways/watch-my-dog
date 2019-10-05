@@ -51,11 +51,11 @@ const useStyles = makeStyles(theme => ({
     width:"50%"
   },
   light:{
-    color:theme.light,
+    color:theme.palette.light.main,
     marginLeft: theme.spacing(0.5)
   },
   find: {
-    backgroundColor: "#f04040",
+    backgroundColor: theme.palette.primary.main,
     padding: "10% auto",
     marginLeft: "2%",
     color: "#efefef"

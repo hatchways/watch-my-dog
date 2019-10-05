@@ -5,7 +5,7 @@ import LocationIcon from "@material-ui/icons/LocationOn";
 
 const styles = theme=>({
     location:{
-        color: theme.primary
+        color: theme.palette.primary.main
     },
     card:{
         padding: theme.spacing(0, 2)

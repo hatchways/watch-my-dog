@@ -18,7 +18,7 @@ import ProfilePhoto from "../sections/ProfilePhoto";
 const cstyle = theme => ({
   "@global": {
     body: {
-      backgroundColor: theme.bgcolor
+      backgroundColor: theme.palette.bgcolor.main
     }
   },
   profileWrapper: {
