@@ -15,7 +15,7 @@ ipaddress==1.0.22
 itsdangerous==1.1.0
 Jinja2==2.10.1
 MarkupSafe==1.1.1
-Pygments==2.4.2
+Pygments==2.7.4
 PyJWT==1.7.1
 pymodm==0.4.1
 pymongo==3.8.0
